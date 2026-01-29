@@ -56,6 +56,7 @@ export default function HostLoginPage() {
         if (response.ok) {
           const data = await response.json();
           setSuccess('Account created successfully!');
+          
           // Store user data from API response
           signup({ 
             id: data.user?.id || data.id,
@@ -87,14 +88,13 @@ export default function HostLoginPage() {
         if (response.ok) {
           const data = await response.json();
           setSuccess('Login successful!');
-          
-          // Store user data from API response
           const userData = {
             id: data.user?.id || data.id,
             name: data.user?.name || data.name,
             email: data.user?.email || email
           };
           login(userData);
+          console.log('token',data.token)
           console.log("Login successful! User ID:", userData.id, "User data:", success);
           router.push('/host');
         } else {
