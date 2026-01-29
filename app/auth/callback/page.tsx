@@ -16,7 +16,7 @@ export default function AuthCallback() {
     const handleCallback = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/me`,
+          `/api/auth/me`,
           { credentials: "include" }
         );
 

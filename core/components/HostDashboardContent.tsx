@@ -96,7 +96,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
     console.log(selectedTemplate)
     if (!currentInvitationId) return;
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/${currentInvitationId}`, {
+      const response = await fetch(`/api/invitations/${currentInvitationId}`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -116,7 +116,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   const fetchEvents = async () => {
       if (!currentInvitationId) return;
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/event/${currentInvitationId}`, {
+        const response = await fetch(`/api/invitations/event/${currentInvitationId}`, {
           credentials: 'include'
         });
         if (response.ok) {
@@ -133,7 +133,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   }, [currentInvitationId]);
   const handleUpdateInvitation = async (data: Partial<Invitation>) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/${currentInvitationId}`, {
+      await fetch(`/api/invitations/${currentInvitationId}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -173,14 +173,14 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
             formDataToSend.append('guests', JSON.stringify([newGuest]));
           }
          
-          response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/guests/upload`, {
+          response = await fetch(`/api/guests/upload`, {
             method: 'POST',
             credentials: 'include',
             body: formDataToSend
           });
         } else {
           
-          response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/guests/upload`, {
+          response = await fetch(`/api/guests/upload`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
     if (!confirm('Are you sure you want to delete this event?')) return;
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/events/${eventId}`, {
+      const response = await fetch(`/api/events/${eventId}`, {
         method: 'DELETE',
         credentials: 'include'
       });

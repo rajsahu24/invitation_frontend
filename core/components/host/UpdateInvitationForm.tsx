@@ -25,7 +25,7 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
   useEffect(() => {
     const fetchInvitation = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/${invitationId}`, {
+        const response = await fetch(`/api/invitations/${invitationId}`, {
           credentials: 'include'
         });
         
@@ -54,7 +54,7 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
     setIsSubmitting(true);
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/${invitationId}`, {
+      const response = await fetch(`/api/invitations/${invitationId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

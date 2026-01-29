@@ -9,8 +9,7 @@ async function getInvitations(token: string) {
     // We assume there is an endpoint /api/auth/me or similar that returns user info based on cookie/token
     const userRes = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/me`, {
        headers: { 
-         'Cookie': `token=${token}`,
-         'Authorization': `Bearer ${token}` // Try both common patterns
+         'Authorization': `Bearer ${token}`
        },
        cache: 'no-store'
     });
@@ -22,7 +21,9 @@ async function getInvitations(token: string) {
        if (userId) {
          // 2. Get Invitations
          const invRes = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/user/${userId}`, {
-              credentials: 'include',
+              headers: { 
+                'Authorization': `Bearer ${token}`
+              },
               cache: 'no-store'
          });
          

@@ -128,7 +128,7 @@ export const useHostStore = create<HostState>()(
 
       logout: async () => {
         try {
-          await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/logout`, {
+          await fetch(`/api/auth/logout`, {
             method: 'POST',
             credentials: 'include'
           });

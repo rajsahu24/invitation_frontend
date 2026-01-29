@@ -45,7 +45,7 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
     // Refetch invitations after creating
     if (user?.id) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/user/${user.id}`, {
+        const response = await fetch(`/api/invitations/user/${user.id}`, {
           credentials: 'include'
         });
         
@@ -67,7 +67,7 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
   const handleInvitationClick = async (invitation: Invitation) => {
     try {
       // Fetch detailed invitation data
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/${invitation.id}`, {
+      const response = await fetch(`/api/invitations/${invitation.id}`, {
         credentials: 'include'
       });
       
@@ -114,7 +114,7 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
       if (!user?.id) return;
       
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/user/${user.id}`, {
+        const response = await fetch(`/api/invitations/user/${user.id}`, {
           credentials: 'include'
         });
         

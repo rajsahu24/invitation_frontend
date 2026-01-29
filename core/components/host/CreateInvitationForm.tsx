@@ -103,7 +103,7 @@ export default function CreateInvitationForm({ onCancel }: Props) {
         formDataToSend.append('guestFile', guestFile);
       }
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations`, {
+      const response = await fetch(`/api/invitations`, {
         method: 'POST',
         credentials: 'include',
         body: formDataToSend

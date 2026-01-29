@@ -29,7 +29,9 @@ async function page({ params }: PageProps) {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/guest/${invitationId}`, {
       cache: 'no-store',
-      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     
     if (response.ok) {

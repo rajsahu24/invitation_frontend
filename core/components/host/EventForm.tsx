@@ -69,8 +69,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
 
     try {
       const url = eventId 
-        ? `${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/events/${eventId}`
-        : `${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/events`;
+        ? `/api/events/${eventId}`
+        : `/api/events`;
       
       const response = await fetch(url, {
         method: eventId ? 'PUT' : 'POST',

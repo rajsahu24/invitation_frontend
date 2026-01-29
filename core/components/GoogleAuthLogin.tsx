@@ -14,7 +14,7 @@ export default function GoogleAuthLogin() {
   useEffect(() => {
     const checkExistingSession = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/me`, {
+        const response = await fetch(`/api/auth/me`, {
           credentials: 'include'
         });
         
@@ -35,7 +35,7 @@ export default function GoogleAuthLogin() {
     checkExistingSession();
   }, [login]);
   const handleGoogleLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/google`;
+    window.location.href = `/api/auth/google`;
   };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -43,7 +43,7 @@ export default function GoogleAuthLogin() {
     setIsLoading(true);
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/login`, {
+      const response = await fetch(`/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

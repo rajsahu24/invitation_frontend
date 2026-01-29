@@ -28,7 +28,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
 
   const fetchPhotos = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/image/${invitationId}`, {
+      const response = await fetch(`/api/invitations/image/${invitationId}`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -52,7 +52,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
     const formData = new FormData();
     formData.append('image', file);
     formData.append('invitation_id', invitationId);
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/invitations/image`, {
+    const response = await fetch(`/api/invitations/image`, {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -91,7 +91,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
 
   const removePhoto = async (imageId: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitations/image/${imageId}`, {
+      const response = await fetch(`/api/invitations/image/${imageId}`, {
         method: 'DELETE',
         credentials: 'include'
       });

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, ArrowRight, User, Phone, Mail, Loader2, Sparkles, Heart } from 'lucide-react';
 import { useHostStore } from '../../../lib/store';
+// import Cookies from 'js-cookie'
+
 
 export default function HostLoginPage() {
   const { login, signup } = useHostStore();
@@ -26,7 +28,7 @@ export default function HostLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { email, password, name, phone } = formData;
-    console.log(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/login`)
+    
     if (!email || !password) return;
     if (isSignUp && (!name || !phone)) return;
 
@@ -36,8 +38,8 @@ export default function HostLoginPage() {
     
     try {
       if (isSignUp) {
-        // Create account API call
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/register`, {
+        // Create account proxy call
+        const response = await fetch('/api/auth/register', {
           method: 'POST',
           credentials: "include",
           headers: {
@@ -71,8 +73,8 @@ export default function HostLoginPage() {
         }
       } else {
          
-        // Login API call
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/auth/login`, {
+        // Login proxy call
+        const response = await fetch('/api/auth/login', {
           method: 'POST',
           credentials: "include",
           headers: {
@@ -88,14 +90,14 @@ export default function HostLoginPage() {
         if (response.ok) {
           const data = await response.json();
           setSuccess('Login successful!');
+          
           const userData = {
             id: data.user?.id || data.id,
             name: data.user?.name || data.name,
             email: data.user?.email || email
           };
           login(userData);
-          console.log('token',data.token)
-          console.log("Login successful! User ID:", userData.id, "User data:", success);
+          console.log('Login successful');
           router.push('/host');
         } else {
           const error = await response.json();
