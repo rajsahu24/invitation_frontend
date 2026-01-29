@@ -22,10 +22,13 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
   console.log("real time data in preview pane: ", realTimeData)
   const url_slipt = url.split('/')
   let templateUrl
-  if(url_slipt.length===7){
+  if(url_slipt[url_slipt.length -1]===invitation_id){
+    console.log("length is 7",url_slipt[url_slipt.length -1]===invitation_id)
     templateUrl = `${url}`
   }
   else{
+    console.log("length is 6",url_slipt[url_slipt.length -1]===invitation_id)
+    console.log(url_slipt[url_slipt.length -1])
     templateUrl = `${url}/${invitation_id}`
   }
   console.log(templateUrl)
