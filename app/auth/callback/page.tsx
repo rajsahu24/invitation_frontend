@@ -15,6 +15,19 @@ export default function AuthCallback() {
 
     const handleCallback = async () => {
       try {
+        // Extract token from URL
+        const searchParams = new URL(window.location.href).searchParams;
+        const urlToken = searchParams.get('token');
+
+        if (urlToken) {
+          // Store token in HttpOnly cookie via BFF
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: urlToken })
+          });
+        }
+
         const response = await fetch(
           `/api/auth/me`,
           { credentials: "include" }
@@ -33,6 +46,7 @@ export default function AuthCallback() {
           email: userData.email,
         });
       } catch (error) {
+        console.error("Callback error:", error);
         router.replace("/login");
       }
     };

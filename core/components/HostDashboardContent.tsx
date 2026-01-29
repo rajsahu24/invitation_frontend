@@ -197,7 +197,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
           setNewGuest({ name: "", email: "", phone: "" });
           setGuestFile(null);
           setShowAddGuest(false);
-          window.location.reload();
+          // window.location.reload();
         } else {
           const error = await response.json();
           alert(`Failed to add guest: ${error.error || 'Unknown error'}`);

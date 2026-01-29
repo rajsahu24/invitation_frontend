@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 export async function GET() {
     try {
         const backendUrl = process.env.NEXT_PUBLIC_APIGATEWAY_URL;
-
+        console.log("hello")
         if (!backendUrl) {
             return NextResponse.json({ message: 'Backend URL not configured' }, { status: 500 });
         }
