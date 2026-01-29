@@ -20,7 +20,14 @@ interface PreviewPaneProps {
 const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, invitation_id, refreshKey }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   console.log("real time data in preview pane: ", realTimeData)
-  const templateUrl = `${url}/${invitation_id}`
+  const url_slipt = url.split('/')
+  let templateUrl
+  if(url_slipt.length===7){
+    templateUrl = `${url}`
+  }
+  else{
+    templateUrl = `${url}/${invitation_id}`
+  }
   console.log(templateUrl)
   // Extract the target origin from the URL for secure postMessage
   const getTargetOrigin = (iframeUrl: string): string => {

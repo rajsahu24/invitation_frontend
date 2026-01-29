@@ -44,25 +44,25 @@ const TEMPLATES = [
     id: '1',
     name: 'Classic Wedding',
     category: 'Wedding',
-    thumbnail: 'http://localhost:5173/template/wedding/1'
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/1`
   },
   {
     id: '2',
     name: 'Modern Wedding',
     category: 'Wedding',
-    thumbnail: 'http://localhost:5173/template/wedding/2'
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/2`
   },
   {
     id: '3',
     name: 'Birthday Celebration',
     category: 'Birthday',
-    thumbnail: 'http://localhost:5173/template/birthday/1'
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/birthday/1`
   },
   {
     id: '4',
     name: 'culture wedding',
     category: 'Wedding',
-    thumbnail: 'http://localhost:5173/template/wedding/3'
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/3`
   }
 ];
 
@@ -209,6 +209,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   };
 
   const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/${invitationDetails?.invitation_type}/${invitationDetails?.invitation_template_id}/${currentInvitationId}`;
+  console.log("invitation_rilasdf",invitation_url)
   
   // Handler for real-time preview updates from DetailsForm
   const handleRealTimeUpdate = (data: {
@@ -392,7 +393,11 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
         </div>
     </div>
   );
-  console.log(realTimePreviewData)
+  // console.log(realTimePreviewData)
+  if(selectedTemplate){
+    console.log(selectedTemplate.thumbnail)
+    console.log(invitation_url)
+  }
 
   return (
     <>
