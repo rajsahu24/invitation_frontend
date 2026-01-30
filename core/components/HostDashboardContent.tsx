@@ -44,32 +44,32 @@ const TEMPLATES = [
     id: '1',
     name: 'Classic Wedding',
     category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/1`
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/1`
   },
   {
     id: '2',
     name: 'Modern Wedding',
     category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/2`
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/2`
   },
   {
     id: '3',
     name: 'Birthday Celebration',
     category: 'Birthday',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/birthday/1`
-  },
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/birthday/3`
+  },  
   {
     id: '4',
     name: 'culture wedding',
     category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/3`
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/3`
   }
 ];
 
 function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   const { currentInvitationId, selectedTemplate } = useHostStore();
   
-  const [invitationDetails, setInvitationDetails] = useState<Invitation | null>(null);
+  const [invitationDetails, setInvitationDetails] = useState<Invitation >();
   const [activeTab, setActiveTab] = useState("details");
   const [eventsList, setEventsList] = useState<any[]>([]);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -208,8 +208,8 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
       }
   };
 
-  const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/${invitationDetails?.invitation_type}/${invitationDetails?.invitation_template_id}/${currentInvitationId}`;
-  console.log("invitation_rilasdf",invitation_url)
+  const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${invitationDetails?.invitation_type}/${invitationDetails?.invitation_template_id}/${currentInvitationId}`;
+  
   
   // Handler for real-time preview updates from DetailsForm
   const handleRealTimeUpdate = (data: {
@@ -293,7 +293,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
       <GuestList 
         guests={guests} 
         onAddGuest={() => setShowAddGuest(true)}
-        invitationTitle={invitationDetails?.invitation_title}
+        invitation={invitationDetails}
       />
     </>
   );

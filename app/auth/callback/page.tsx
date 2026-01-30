@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { useHostStore } from "@/lib/store";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AuthCallback() {
+function CallbackContent() {
   const { login, user } = useHostStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const hasRun = useRef(false);
 
   useEffect(() => {
@@ -15,17 +16,20 @@ export default function AuthCallback() {
 
     const handleCallback = async () => {
       try {
-        // Extract token from URL
-        const searchParams = new URL(window.location.href).searchParams;
         const urlToken = searchParams.get('token');
-
+        console.log("AuthCallback received token:", urlToken ? "Present" : "Missing");
         if (urlToken) {
+          console.log("Establishing session via BFF...");
           // Store token in HttpOnly cookie via BFF
-          await fetch('/api/auth/session', {
+          const sessionRes = await fetch('/api/auth/session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: urlToken })
           });
+          
+          if (!sessionRes.ok) {
+            console.error("Failed to establish BFF session");
+          }
         }
 
         const response = await fetch(
@@ -46,20 +50,20 @@ export default function AuthCallback() {
           email: userData.email,
         });
       } catch (error) {
-        console.error("Callback error:", error);
+        console.error("Callback execution error:", error);
         router.replace("/login");
       }
     };
 
     handleCallback();
-  }, []);
+  }, [searchParams, login, router]);
 
   // ✅ redirect AFTER state is set
   useEffect(() => {
     if (user) {
       router.replace("/host");
     }
-  }, [user]);
+  }, [user, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -68,5 +72,17 @@ export default function AuthCallback() {
         <p>Completing sign in...</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center font-medium">
+        Loading authentication...
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   );
 }

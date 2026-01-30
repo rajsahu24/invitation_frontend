@@ -111,7 +111,7 @@ export default function Hero() {
               <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl pt-2 aspect-[9/16]">
                                    <div className="w-full h-full bg-white  overflow-hidden relative">
                         <iframe 
-                          src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/${id}`}
+                          src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`}
                           className="w-full h-full border-0"
                           title={`Template ${id}`}
                           loading="lazy"
@@ -123,7 +123,7 @@ export default function Hero() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-800 rounded-b-2xl" />
           </div>
         </motion.div>
-        <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/${id}`} target="_blank">
+        <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`} target="_blank">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

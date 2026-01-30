@@ -22,22 +22,22 @@ const templates: Template[] = [
     id: '1',
     name: 'Classic Wedding',
     category: 'Wedding',
-    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/1`,
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/1`
+    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/1`,
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/1`
   },
   {
     id: '2',
     name: 'Modern Wedding',
     category: 'Wedding',
-    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/2`,
-    thumbnail:  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/2`
+    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/2`,
+    thumbnail:  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/2`
   },
   {
     id: '3',
     name: 'Birthday Celebration',
     category: 'Birthday',
-    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/birthday/1`,
-    thumbnail:  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/birthday/1`
+    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/birthday/1`,
+    thumbnail:  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/birthday/1`
   }
 ];
 

@@ -37,7 +37,7 @@ export default function InvitationPreview({
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeReady, setIframeReady] = useState(false);
-  const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/${invitationData?.invitation_type}/${invitationData?.invitation_template_id}`
+  const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${invitationData?.invitation_type}/${invitationData?.invitation_template_id}`
   // Reset iframe ready state when modal closes
   
   console.log(invitationData)
@@ -63,8 +63,8 @@ export default function InvitationPreview({
         if (invitationData && iframeRef.current?.contentWindow) {
           console.log('Sending data to ready iframe:', invitationData);
           iframeRef.current.contentWindow.postMessage({
-            type: 'UPDATE_INVITATION',
-            data: invitationData
+            type: 'INVITATION_PREVIEW_UPDATE',
+            payload: invitationData
           }, '*');
         }
       }
@@ -85,8 +85,8 @@ export default function InvitationPreview({
     if (iframeReady && invitationData && iframeRef.current?.contentWindow) {
       console.log('Sending updated data to iframe:', invitationData);
       iframeRef.current.contentWindow.postMessage({
-        type: 'UPDATE_INVITATION',
-        data: invitationData
+        type: 'INVITATION_PREVIEW_UPDATE',
+        payload: invitationData
       }, '*');
     }
   }, [invitationData, iframeReady]);

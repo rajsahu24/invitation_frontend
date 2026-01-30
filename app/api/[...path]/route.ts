@@ -27,6 +27,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ pa
 }
 
 async function proxyRequest(request: Request, path: string[]) {
+
     try {
         const backendUrl = process.env.NEXT_PUBLIC_APIGATEWAY_URL;
         if (!backendUrl) {
@@ -53,14 +54,10 @@ async function proxyRequest(request: Request, path: string[]) {
         };
 
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
-            try {
-                const body = await request.clone().text();
-                if (body) {
-                    options.body = body;
-                }
-            } catch (e) {
-                // No body or unreadable body
-            }
+            // For streaming body, duplex is required in Node.js fetch
+            // @ts-ignore - duplex is not yet in the standard RequestInit type for all environments
+            options.duplex = 'half';
+            options.body = request.body;
         }
 
         const response = await fetch(url, options);

@@ -148,14 +148,14 @@ export default function LandingPage() {
                      {/* Screen */}
                      <div className="w-full h-full bg-white rounded-[2.2rem] overflow-hidden relative">
                         <iframe 
-                          src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/${id}`}
+                          src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`}
                           className="w-full h-full border-0"
                           title={`Template ${id}`}
                           loading="lazy"
                         />
                      </div>
                   </div>
-                  <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/template/wedding/${id}`} target="_blank">
+                  <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`} target="_blank">
                      <motion.button
                        whileHover={{ scale: 1.05 }}
                        whileTap={{ scale: 0.95 }}

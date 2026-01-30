@@ -12,20 +12,36 @@ interface Guest {
   rsvp_token:string
 }
 
+
+interface Invitation {
+  id: string;
+  user_id: string;
+  invitation_title: string;
+  invitation_message: string;
+  invitation_tag_line: string;
+  invitation_type: string;
+  invitation_template_id: string;
+  template_url?: string;
+  quick_action: Record<string, any>;
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
 interface GuestListProps {
   guests: Guest[];
   onAddGuest: () => void;
-  invitationTitle?: string;
+  invitation?: Invitation;
 }
 
-const GuestList: React.FC<GuestListProps> = ({ guests = [], onAddGuest, invitationTitle = "Our Event" }) => {
+const GuestList: React.FC<GuestListProps> = ({ guests = [], onAddGuest, invitation }) => {
   const [filter, setFilter] = useState<'All' | 'Confirmed' | 'Pending'>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const { currentInvitationId } = useHostStore();
  
-  const handleWhatsAppShare = (guest: Guest, invitationTitle: string) => {
-    const invitationUrl = `${window.location.origin}/invite/${currentInvitationId}/${guest.rsvp_token}`;
-    const message = `Hi ${guest.name}! 🎉\n\nYou're invited to ${invitationTitle}!\n\nView your invitation: ${invitationUrl}`;
+  const handleWhatsAppShare = (guest: Guest, invitation: Invitation | undefined) => {
+    const invitationUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${invitation?.invitation_type}/${invitation?.invitation_template_id}/${guest.rsvp_token}`;
+    const message = `Hi ${guest.name}! 🎉\n\nYou're invited to ${invitation?.invitation_title}!\n\nView your invitation: ${invitationUrl}`;
     const whatsappUrl = `https://wa.me/${guest.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -148,7 +164,7 @@ const getStatusColor = (status: number) => {
                 <div className="flex items-center gap-2">
                   {guest.phone && (
                     <button
-                      onClick={() => handleWhatsAppShare(guest, invitationTitle)}
+                      onClick={() => handleWhatsAppShare(guest, invitation)}
                       className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="Share on WhatsApp"
                     >

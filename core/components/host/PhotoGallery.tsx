@@ -31,6 +31,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
       const response = await fetch(`/api/invitations/image/${invitationId}`, {
         credentials: 'include'
       });
+      
       if (response.ok) {
         const data = await response.json();
         setPhotos(data || []);
@@ -52,12 +53,13 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
     const formData = new FormData();
     formData.append('image', file);
     formData.append('invitation_id', invitationId);
+    
     const response = await fetch(`/api/invitations/image`, {
       method: 'POST',
       body: formData,
       credentials: 'include'
     });
-
+    
     if (!response.ok) {
       throw new Error('Upload failed');
     }
