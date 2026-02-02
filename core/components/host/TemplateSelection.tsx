@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Check } from 'lucide-react';
 
@@ -17,40 +17,44 @@ interface TemplateSelectionProps {
   onBack: () => void;
 }
 
-const templates: Template[] = [
-  {
-    id: '1',
-    name: 'Classic Wedding',
-    category: 'Wedding',
-    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/1`,
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/1`
-  },
-  {
-    id: '2',
-    name: 'Modern Wedding',
-    category: 'Wedding',
-    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/2`,
-    thumbnail:  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/2`
-  },
-  {
-    id: '3',
-    name: 'Birthday Celebration',
-    category: 'Birthday',
-    previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/birthday/1`,
-    thumbnail:  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/birthday/1`
-  }
-];
-
 export default function TemplateSelection({ onSelect, onBack }: TemplateSelectionProps) {
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [category, setCategory] = useState<string>('All');
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['All', 'Wedding', 'Birthday', 'Corporate'];
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
+        const data = await response.json();
+        
+        const formattedTemplates = data.map((template: any) => ({
+          id: template.id,
+          name: template.template_name,
+          category: template.template_type,
+          previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`,
+          thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`
+        }));
+        
+        setTemplates(formattedTemplates);
+      } catch (error) {
+        console.error('Failed to fetch templates:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
+
+  const categories = ['All', ...Array.from(new Set(templates.map(t => t.category)))];
   const filteredTemplates = category === 'All' 
     ? templates 
     : templates.filter(t => t.category === category);
 
-  const handleSelect = () => {
+  
+    const handleSelect = () => {
     if (selectedTemplate) {
       onSelect(selectedTemplate);
     }
@@ -87,9 +91,9 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
 
         {/* Category Filter */}
         <div className="flex gap-2 mb-8">
-          {categories.map((cat) => (
+          {categories.map((cat,i) => (
             <button
-              key={cat}
+              key={cat+i}
               onClick={() => setCategory(cat)}
               className={`px-4 py-2 rounded-full font-medium transition-colors ${
                 category === cat
@@ -103,8 +107,13 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
         </div>
 
         {/* Template Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTemplates.map((template) => (
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTemplates.map((template) => (
             <motion.div
               key={template.id}
               initial={{ opacity: 0, y: 20 }}
@@ -147,8 +156,9 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
                 </div>
               </div>
             </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

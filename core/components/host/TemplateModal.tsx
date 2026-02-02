@@ -3,22 +3,40 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check } from 'lucide-react';
 import { useHostStore, Template } from '../../../lib/store';
 
+interface Invitation {
+  id: string;
+  user_id: string;
+  invitation_title: string;
+  invitation_message: string;
+  invitation_tag_line: string;
+  invitation_type: string;
+  invitation_template_id: string;
+  template_url?: string;
+  public_id?:string;
+  quick_action: Record<string, any>;
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
 interface TemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
   templates: Template[];
   currentTemplateId: string;
+  invitationDetails: Invitation | undefined;
 }
 
 const TemplateModal: React.FC<TemplateModalProps> = ({ 
   isOpen, 
   onClose, 
   templates, 
-  currentTemplateId 
+  currentTemplateId,
+  invitationDetails
 }) => {
   const [category, setCategory] = useState<string>('All');
   const { setSelectedTemplate } = useHostStore();
-  
+  console.log("lots of ttemplatelsakdjflaksjdflksjfdlkajsdf",templates)
   console.log("templates", templates)
   const categories = ['All', 'Wedding', 'Birthday', 'Corporate'];
   
@@ -83,8 +101,8 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
             {/* Grid */}
             <div className="flex-1 overflow-y-auto p-6 bg-gray-50 custom-scrollbar">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredTemplates.map((template) =>{
-                  const template_url = `${template.thumbnail}/`
+                {invitationDetails && filteredTemplates.map((template) =>{
+                  const template_url = `${template.thumbnail}/${invitationDetails.public_id}`
                   return(
                    <motion.div
                      key={template.id}

@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const navLinks = [
   { name: 'Features', href: '#features' },
@@ -14,7 +14,19 @@ const navLinks = [
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { scrollY } = useScroll();
+  
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+    };
+    
+    const token = getCookie('token');
+    setIsLoggedIn(!!token);
+  }, []);
   
   const backgroundColor = useTransform(
     scrollY,
@@ -59,20 +71,17 @@ export default function Navigation() {
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/login"
-              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              Get Started
-            </Link>
-          </div>
+          {!isLoggedIn && (
+            <div className="hidden md:flex items-center gap-4">
+
+              <Link
+                href="/login"
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
 
           {/* Mobile menu button */}
           <button
@@ -101,20 +110,17 @@ export default function Navigation() {
                 {link.name}
               </a>
             ))}
-            <div className="pt-4 space-y-3">
-              <Link
-                href="/login"
-                className="block text-center text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/login"
-                className="block text-center px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-semibold"
-              >
-                Get Started
-              </Link>
-            </div>
+            {!isLoggedIn && (
+              <div className="pt-4 space-y-3">
+
+                <Link
+                  href="/login"
+                  className="block text-center px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-semibold"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
           </motion.div>
         )}
       </div>

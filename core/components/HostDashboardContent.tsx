@@ -35,6 +35,7 @@ interface Invitation {
   template_url?: string;
   quick_action: Record<string, any>;
   metadata: Record<string, any>;
+  public_id:string;
   created_at: string;
   updated_at: string;
 }
@@ -44,25 +45,25 @@ const TEMPLATES = [
     id: '1',
     name: 'Classic Wedding',
     category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/1`
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
   },
   {
     id: '2',
     name: 'Modern Wedding',
     category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/2`
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
   },
   {
     id: '3',
     name: 'Birthday Celebration',
     category: 'Birthday',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/birthday/3`
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
   },  
   {
     id: '4',
     name: 'culture wedding',
     category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/3`
+    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
   }
 ];
 
@@ -79,7 +80,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   const [newGuest, setNewGuest] = useState({ name: "", email: "", phone: "" });
   const [guestFile, setGuestFile] = useState<File | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  
+
   // Real-time preview data state
   const [realTimePreviewData, setRealTimePreviewData] = useState<{
     invitationId?: string;
@@ -395,8 +396,8 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   );
   // console.log(realTimePreviewData)
   if(selectedTemplate){
-    console.log(selectedTemplate.thumbnail)
-    console.log(invitation_url)
+    console.log("selectedTemplate",selectedTemplate.thumbnail)
+    console.log("selectedTemplate",invitation_url)
   }
 
   return (
@@ -405,7 +406,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
         header={Header}
         sidebar={Sidebar}
         main={Main}
-        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} invitation_id={invitationDetails?.id} refreshKey={refreshKey} />}
+        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} public_id={invitationDetails?.public_id} refreshKey={refreshKey} />}
       />
 
       {/* Modals */}
@@ -414,6 +415,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
         onClose={() => setShowTemplateModal(false)}
         templates={TEMPLATES}
         currentTemplateId={invitationDetails?.invitation_template_id || ''}
+        invitationDetails={invitationDetails}
         
       />
 

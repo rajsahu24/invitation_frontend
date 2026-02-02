@@ -103,6 +103,7 @@ interface HostState {
 }
 
 export const useHostStore = create<HostState>()(
+  
   persist(
     (set) => ({
       user: null,

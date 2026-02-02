@@ -29,6 +29,7 @@ interface InvitationListProps {
 
 export default function InvitationList({ initialInvitations = [] }: InvitationListProps) {
   const { user, logout, setCurrentInvitation, updateInvitation } = useHostStore();
+  const [invitationPublic, setInvitationPublic] = useState<string>()
   const [invitations, setInvitations] = useState<Invitation[]>(initialInvitations);
   const [loading, setLoading] = useState(invitations.length === 0);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -73,7 +74,6 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
       
       if (response.ok) {
         const invitationData = await response.json();
-        
         // Transform API data to match store interface
         const transformedInvitation = {
           id: invitationData.id,

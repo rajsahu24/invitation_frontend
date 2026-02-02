@@ -3,8 +3,33 @@
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+interface Template {
+  id: string;
+  template_name: string;
+  template_type: string;
+}
 
 export default function Hero() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
+        const data = await response.json();
+        setTemplates(data.slice(0, 4)); // Show only first 2 templates
+      } catch (error) {
+        console.error('Failed to fetch templates:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-20">
       {/* Animated background elements */}
@@ -94,48 +119,48 @@ export default function Hero() {
 
         {/* Phone mockup */}
         <div className='flex justify-center gap-12'>
-
-        {
-          [1,2].map((id) => (
-            <div key={id}>
-        <motion.div
-          
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-20"
-        >
-
-          <div className="relative mx-auto w-full max-w-sm">
-            <div className="relative bg-white rounded-3xl shadow-2xl p-2 border-8 border-gray-800">
-              <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl pt-2 aspect-[9/16]">
-                                   <div className="w-full h-full bg-white  overflow-hidden relative">
-                        <iframe 
-                          src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`}
-                          className="w-full h-full border-0"
-                          title={`Template ${id}`}
-                          loading="lazy"
-                        />
-                     </div>
-              </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
-            {/* Phone notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-800 rounded-b-2xl" />
-          </div>
-        </motion.div>
-        <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`} target="_blank">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="mt-8 px-8 py-3 bg-violet-600 text-white rounded-xl font-bold shadow-lg hover:bg-violet-700 transition-colors"
-        >
-          Select Template {id}
-        </motion.button>
-      </Link>
-      </div>
-          ))
-
-        }
+          ) : (
+            templates.map((template) => (
+              <div key={template.id}>
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                  className="mt-20"
+                >
+                  <div className="relative mx-auto w-full max-w-sm">
+                    <div className="relative bg-white rounded-3xl shadow-2xl p-2 border-8 border-gray-800">
+                      <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl pt-2 aspect-[9/16]">
+                        <div className="w-full h-full bg-white overflow-hidden relative">
+                          <iframe 
+                            src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`}
+                            className="w-full h-full border-0"
+                            title={template.template_name}
+                            loading="lazy"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {/* Phone notch */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-800 rounded-b-2xl" />
+                  </div>
+                </motion.div>
+                <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`} target="_blank">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="mt-8 px-8 py-3 bg-violet-600 text-white rounded-xl font-bold shadow-lg hover:bg-violet-700 transition-colors"
+                  >
+                    {template.template_name}
+                  </motion.button>
+                </Link>
+              </div>
+            ))
+          )}
         </div>
         
       </div>

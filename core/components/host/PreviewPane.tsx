@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Eye, ExternalLink, Smartphone, Monitor } from 'lucide-react';
 
 interface RealTimeData {
@@ -13,25 +13,32 @@ interface PreviewPaneProps {
   url: string;
   isLoading?: boolean;
   realTimeData?: RealTimeData | null;
-  invitation_id: string;
+  public_id: string;
   refreshKey?: number;
 }
 
-const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, invitation_id, refreshKey }) => {
+const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  console.log("real time data in preview pane: ", realTimeData)
-  const url_slipt = url.split('/')
-  let templateUrl
-  if(url_slipt[url_slipt.length -1]===invitation_id){
-    console.log("length is 7",url_slipt[url_slipt.length -1]===invitation_id)
-    templateUrl = `${url}`
-  }
-  else{
-    console.log("length is 6",url_slipt[url_slipt.length -1]===invitation_id)
-    console.log(url_slipt[url_slipt.length -1])
-    templateUrl = `${url}/${invitation_id}`
-  }
-  console.log(templateUrl)
+  const [templateUrl, setTemplateUrl] = useState<string>('');
+  
+  useEffect(() => {
+    const fetchInvitationData = async () => {
+      try {
+        
+        if (public_id) {
+          const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`;
+          setTemplateUrl(constructedUrl);
+        }
+      } catch (error) {
+        console.error('Failed to fetch invitation data:', error);
+        // Fallback to original URL logic
+        const url_split = url.split('/');
+        
+      }
+    };
+
+    fetchInvitationData();
+  }, [public_id]);
   // Extract the target origin from the URL for secure postMessage
   const getTargetOrigin = (iframeUrl: string): string => {
     try {
@@ -98,14 +105,16 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
           {/* Phone Notch (Visual Flair) */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-32 bg-gray-900 rounded-b-xl z-10" />
           
-          <iframe
-            ref={iframeRef}
-            key={refreshKey} // Force reload when refreshKey changes
-            src={templateUrl}
-            className="w-full h-full border-0 bg-white"
-            title="Invitation Preview"
-            sandbox="allow-scripts allow-same-origin allow-forms"
-          />
+          {templateUrl && (
+            <iframe
+              ref={iframeRef}
+              key={refreshKey}
+              src={templateUrl}
+              className="w-full h-full border-0 bg-white"
+              title="Invitation Preview"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+            />
+          )}
         </div>
       </div>
     </div>
