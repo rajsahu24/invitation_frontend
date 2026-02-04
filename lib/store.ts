@@ -61,8 +61,8 @@ export interface HostUser {
 
 export interface Template {
   id: string;
-  name: string;
-  category: string;
+  template_name: string;
+  template_type: string;
   thumbnail: string;
 }
 

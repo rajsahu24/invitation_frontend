@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Eye, ExternalLink, Smartphone, Monitor } from 'lucide-react';
+import { useHostStore } from '../../../lib/store';
 
 interface RealTimeData {
   invitation_title?: string;
@@ -20,10 +21,17 @@ interface PreviewPaneProps {
 const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [templateUrl, setTemplateUrl] = useState<string>('');
+  const { selectedTemplate } = useHostStore();
   
   useEffect(() => {
     const fetchInvitationData = async () => {
       try {
+        // If a template is selected from the modal, use that template ID
+        if (selectedTemplate) {
+          const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${selectedTemplate.id}`;
+          setTemplateUrl(constructedUrl);
+          return;
+        }
         
         if (public_id) {
           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`;
@@ -31,14 +39,11 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
         }
       } catch (error) {
         console.error('Failed to fetch invitation data:', error);
-        // Fallback to original URL logic
-        const url_split = url.split('/');
-        
       }
     };
 
     fetchInvitationData();
-  }, [public_id]);
+  }, [public_id, selectedTemplate]);
   // Extract the target origin from the URL for secure postMessage
   const getTargetOrigin = (iframeUrl: string): string => {
     try {

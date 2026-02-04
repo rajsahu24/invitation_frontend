@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check } from 'lucide-react';
 import { useHostStore, Template } from '../../../lib/store';
@@ -22,7 +22,6 @@ interface Invitation {
 interface TemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  templates: Template[];
   currentTemplateId: string;
   invitationDetails: Invitation | undefined;
 }
@@ -30,19 +29,37 @@ interface TemplateModalProps {
 const TemplateModal: React.FC<TemplateModalProps> = ({ 
   isOpen, 
   onClose, 
-  templates, 
   currentTemplateId,
   invitationDetails
 }) => {
   const [category, setCategory] = useState<string>('All');
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
   const { setSelectedTemplate } = useHostStore();
-  console.log("lots of ttemplatelsakdjflaksjdflksjfdlkajsdf",templates)
-  console.log("templates", templates)
-  const categories = ['All', 'Wedding', 'Birthday', 'Corporate'];
+  
+  useEffect(() => {
+    if (isOpen) {
+      const fetchTemplates = async () => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
+          const data = await response.json();
+          setTemplates(data);
+        } catch (error) {
+          console.error('Failed to fetch templates:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchTemplates();
+    }
+  }, [isOpen]);
+  
+  const categories = ['All', ...Array.from(new Set(templates.map(t => t.template_type)))];
   
   const filteredTemplates = category === 'All' 
     ? templates 
-    : templates.filter(t => t.category.toLowerCase() === category.toLowerCase());
+    : templates.filter(t => t.template_type.toLowerCase() === category.toLowerCase());
 
   const handleTemplateSelect = (template: Template) => {
     setSelectedTemplate(template);
@@ -100,10 +117,15 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
 
             {/* Grid */}
             <div className="flex-1 overflow-y-auto p-6 bg-gray-50 custom-scrollbar">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {invitationDetails && filteredTemplates.map((template) =>{
-                  const template_url = `${template.thumbnail}/${invitationDetails.public_id}`
-                  return(
+              {loading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {invitationDetails && filteredTemplates.map((template) =>{
+                    const template_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`
+                    return(
                    <motion.div
                      key={template.id}
                      layoutId={`template-${template.id}`}
@@ -119,7 +141,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                         <iframe
                            src={template_url}
                            className="w-full h-full border-0 pointer-events-none"
-                           title={template.name}
+                           title={template.template_name}
                            scrolling="no"
                          />
                        
@@ -143,14 +165,15 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                      </div>
                      
                      <div className="p-4">
-                       <h3 className="font-bold text-gray-900 truncate">{template.name}</h3>
-                       <p className="text-sm text-gray-500">{template.category}</p>
+                       <h3 className="font-bold text-gray-900 truncate">{template.template_name}</h3>
+                       <p className="text-sm text-gray-500">{template.template_type}</p>
                      </div>
                    </motion.div>
-                 )
-                }
-                )}
-              </div>
+                   )
+                  }
+                  )}
+                </div>
+              )}
             </div>
 
           </motion.div>

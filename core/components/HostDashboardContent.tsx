@@ -413,7 +413,7 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
       <TemplateModal 
         isOpen={showTemplateModal}
         onClose={() => setShowTemplateModal(false)}
-        templates={TEMPLATES}
+        
         currentTemplateId={invitationDetails?.invitation_template_id || ''}
         invitationDetails={invitationDetails}
         
