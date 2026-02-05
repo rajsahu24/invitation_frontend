@@ -182,7 +182,7 @@ function Templates() {
                       key={`${template.id}-desktop`} 
                       className="min-w-[33.333%] px-6 flex flex-col items-center group/card"
                     >
-                      <div className="relative w-full max-w-[320px] aspect-[9/18.5] bg-gray-950 rounded-[3.2rem] p-2.5 shadow-2xl border-[10px] border-gray-900 transition-all duration-500 group-hover/card:scale-[1.03] group-hover/card:shadow-blue-200/40">
+                      <div className="relative w-full max-w-[250px] aspect-[9/18.5] bg-gray-950 rounded-[3.2rem] p-0.5 shadow-2xl border-[10px] border-gray-900 transition-all duration-500 group-hover/card:scale-[1.03] group-hover/card:shadow-blue-200/40">
                          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-7 w-36 bg-gray-900 rounded-b-3xl z-20 flex justify-center items-start pt-1.5 shadow-inner">
                             <div className="w-12 h-1 bg-gray-800 rounded-full" />
                          </div>
