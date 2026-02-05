@@ -37,8 +37,6 @@ export default function CreateInvitationForm({ onCancel }: Props) {
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
-    message: '',
-    location: '',
     invitation_type: '',
     template_id: ''
   });
@@ -58,7 +56,7 @@ export default function CreateInvitationForm({ onCancel }: Props) {
       setGuestFile(file);
     }
   };
-
+  console.log("selected",selectedTemplate)
   const addEvent = () => {
     if (newEvent.event_name && newEvent.start_time && newEvent.end_time) {
       setEvents(prev => [...prev, newEvent]);
@@ -90,8 +88,6 @@ export default function CreateInvitationForm({ onCancel }: Props) {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('invitation_title', formData.title);
-      formDataToSend.append('invitation_message', formData.message);
-      formDataToSend.append('invitation_tag_line', formData.location);
       formDataToSend.append('invitation_type', formData.invitation_type);
       formDataToSend.append('metadata', JSON.stringify(metadata));
       formDataToSend.append('guests', JSON.stringify(guests));
@@ -117,7 +113,7 @@ export default function CreateInvitationForm({ onCancel }: Props) {
   };
 
   const handleTemplateSelect = (template: Template) => {
-    
+    console.log("template in createinvitation form", template)
     setSelectedTemplate(template);
     setFormData(prev => ({ 
       ...prev, 
@@ -176,6 +172,19 @@ export default function CreateInvitationForm({ onCancel }: Props) {
                     </h3>
                     
                     <div className="space-y-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
+                                <input 
+                                    type="text" 
+                                    required
+                                    placeholder="e.g. Rahul & Priya's Wedding"
+                                    value={formData.title}
+                                    onChange={e => setFormData({...formData, title: e.target.value})}
+                                    className="w-full px-4 py-3 text-gray-950 text-sm border-2 border-gray-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all"
+                                />
+                            </div>
+                        </div>
                     <div className="flex flex-col sm:flex-row gap-4 items-end">
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
@@ -271,42 +280,8 @@ export default function CreateInvitationForm({ onCancel }: Props) {
                             </motion.div>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
-                                <input 
-                                    type="text" 
-                                    required
-                                    placeholder="e.g. Rahul & Priya's Wedding"
-                                    value={formData.title}
-                                    onChange={e => setFormData({...formData, title: e.target.value})}
-                                    className="w-full px-4 py-3 text-gray-950 text-sm border-2 border-gray-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all"
-                                />
-                            </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                                <input 
-                                    type="text" 
-                                    required
-                                    placeholder="e.g. Udaipur, Rajasthan"
-                                    value={formData.location}
-                                    onChange={e => setFormData({...formData, location: e.target.value})}
-                                    className="w-full px-4 py-3 text-gray-950 text-sm border-2 border-gray-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all"
-                                />
-                            </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Invitation Message</label>
-                            <textarea 
-                                required
-                                placeholder="Come join us for a wonderful celebration..."
-                                value={formData.message}
-                                onChange={e => setFormData({...formData, message: e.target.value})}
-                                className="w-full px-4 py-3 text-sm border-2 text-gray-950 border-gray-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all h-20 resize-none"
-                            />
-                        </div>
                     </div>
                 </div>
 
@@ -494,7 +469,7 @@ export default function CreateInvitationForm({ onCancel }: Props) {
                 <div className="pt-4">
                     <button 
                         type="submit"
-                        disabled={isSubmitting || !formData.title || !formData.message || !formData.location || !formData.invitation_type}
+                        disabled={isSubmitting || !formData.title ||   !formData.invitation_type}
                         className="w-full py-4 bg-gradient-to-r from-violet-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:transform-none shadow-lg"
                     >
                         {isSubmitting ? (

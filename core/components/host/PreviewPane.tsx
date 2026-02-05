@@ -24,31 +24,36 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
   const { selectedTemplate } = useHostStore();
   
   useEffect(() => {
-    const fetchInvitationData = async () => {
+    console.log('PreviewPane useEffect triggered:', { public_id, selectedTemplate, refreshKey });
+    
+    const updateTemplateUrl = async () => {
       try {
-        // If a template is selected from the modal, use that template ID
-        if (selectedTemplate) {
-          const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${selectedTemplate.id}`;
-          setTemplateUrl(constructedUrl);
-          return;
-        }
+        // Priority logic for preview URL:
+        // 1. If we have a temporary selectedTemplate (for previewing before save)
+        // 2. Otherwise, if we have a public_id (for the currently saved invitation)
         
-        if (public_id) {
-          const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`;
-          setTemplateUrl(constructedUrl);
+        if (selectedTemplate) {
+           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${selectedTemplate.id}`;
+           console.log('Using selectedTemplate preview URL:', constructedUrl);
+           setTemplateUrl(constructedUrl);
+        } else if (public_id) {
+           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`;
+           console.log('Using public_id URL:', constructedUrl);
+           setTemplateUrl(constructedUrl);
         }
       } catch (error) {
-        console.error('Failed to fetch invitation data:', error);
+        console.error('Failed to update template URL:', error);
       }
     };
 
-    fetchInvitationData();
-  }, [public_id, selectedTemplate]);
+    updateTemplateUrl();
+  }, [public_id, selectedTemplate, refreshKey]);
   // Extract the target origin from the URL for secure postMessage
   const getTargetOrigin = (iframeUrl: string): string => {
     try {
-      
+      console.log("hello",iframeUrl)
       const urlObj = new URL(iframeUrl);
+      console.log("urlObj", urlObj)
       return urlObj.origin;
     } catch {
       // If URL parsing fails, return the template service URL from env or fallback
@@ -57,22 +62,40 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
   };
   // Send real-time updates to iframe via postMessage
   useEffect(() => {
-    if (!realTimeData || !iframeRef.current?.contentWindow) return;
-    const targetOrigin = getTargetOrigin(url);
+    console.log('PostMessage useEffect triggered:', { realTimeData, templateUrl });
     
-    try {
-      iframeRef.current.contentWindow.postMessage(
-        {
-          type: 'INVITATION_PREVIEW_UPDATE',
-          payload: realTimeData
-        },
-        targetOrigin
-      );
-    } catch (error) {
-      console.error('Failed to send postMessage to preview iframe:', error);
+    if (!iframeRef.current?.contentWindow || !templateUrl) {
+      console.log('PostMessage conditions not met:', {
+        hasContentWindow: !!iframeRef.current?.contentWindow,
+        hasTemplateUrl: !!templateUrl
+      });
+      return;
     }
-  }, [realTimeData, url]);
+    
+    // Send message even if realTimeData is null (for initial load)
+    const sendMessage = () => {
+      try {
+        const targetOrigin = getTargetOrigin(templateUrl);
+        console.log('Sending postMessage:', { realTimeData, targetOrigin });
+        
+        iframeRef.current?.contentWindow?.postMessage(
+          {
+            type: 'INVITATION_PREVIEW_UPDATE',
+            payload: realTimeData || {}
+          },
+          targetOrigin
+        );
+        console.log('PostMessage sent successfully');
+      } catch (error) {
+        console.error('Failed to send postMessage to preview iframe:', error);
+      }
+    };
 
+    // Send message after a short delay to ensure iframe is loaded
+    const timer = setTimeout(sendMessage, 1000);
+    return () => clearTimeout(timer);
+  }, [realTimeData, templateUrl]);
+  console.log("template url in preview pene",templateUrl)
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-white/20 overflow-hidden flex flex-col h-[calc(100vh-120px)] sticky top-24">
       {/* Preview Header */}
@@ -113,11 +136,36 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
           {templateUrl && (
             <iframe
               ref={iframeRef}
-              key={refreshKey}
+              key={`${refreshKey}-${templateUrl}`}
               src={templateUrl}
               className="w-full h-full border-0 bg-white"
               title="Invitation Preview"
-              sandbox="allow-scripts allow-same-origin allow-forms"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                onLoad={() => {
+                  console.log('Iframe loaded successfully:', templateUrl);
+                  // Send initial data when iframe loads
+                  setTimeout(() => {
+                    try {
+                      const targetOrigin = getTargetOrigin(templateUrl);
+                      const messagePayload = {
+                        type: 'INVITATION_PREVIEW_UPDATE',
+                        payload: realTimeData || {}
+                      };
+                      console.log('Sending initial handshake postMessage to iframe:', { 
+                        targetOrigin, 
+                        hasData: !!realTimeData,
+                        payloadKeys: realTimeData ? Object.keys(realTimeData) : []
+                      });
+                      
+                      iframeRef.current?.contentWindow?.postMessage(messagePayload, targetOrigin);
+                    } catch (error) {
+                      console.error('Failed to send initial postMessage:', error);
+                    }
+                  }, 500);
+                }}
+              onError={(e) => {
+                console.error('Iframe error:', e);
+              }}
             />
           )}
         </div>

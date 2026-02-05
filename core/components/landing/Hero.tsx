@@ -77,14 +77,14 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-5xl md:text-7xl font-bold text-gray-900 mb-6"
+          className="text-4xl md:text-7xl font-extrabold text-gray-900 mb-6 tracking-tight leading-[1.1]"
         >
           Create Beautiful{' '}
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent block md:inline mt-2 md:mt-0">
             Invitations
           </span>
-          <br />
-          in Minutes
+          <br className="hidden md:block" />
+          <span className="md:mt-0">in Minutes</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -92,10 +92,10 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto"
+          className="text-lg md:text-2xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed px-4"
         >
           Design stunning event invitations with ease. Perfect for weddings, birthdays, 
-          corporate events, and more. No design skills required.
+          and corporate events. No design skills required.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -103,66 +103,19 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center px-6"
         >
           <Link
             href="/login"
-            className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+            className="w-full sm:w-auto group px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2"
           >
             Get Started Free
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <button className="px-8 py-4 bg-white text-gray-700 rounded-full font-semibold text-lg hover:shadow-lg hover:scale-105 transition-all duration-300 border-2 border-gray-200">
+          <button className="w-full sm:w-auto px-10 py-4 bg-white text-gray-700 rounded-2xl font-bold text-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-2 border-gray-100 flex items-center justify-center">
             View Examples
           </button>
         </motion.div>
-
-        {/* Phone mockup */}
-        <div className='flex justify-center gap-12'>
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            templates.map((template) => (
-              <div key={template.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
-                  className="mt-20"
-                >
-                  <div className="relative mx-auto w-full max-w-sm">
-                    <div className="relative bg-white rounded-3xl shadow-2xl p-2 border-8 border-gray-800">
-                      <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl pt-2 aspect-[9/16]">
-                        <div className="w-full h-full bg-white overflow-hidden relative">
-                          <iframe 
-                            src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`}
-                            className="w-full h-full border-0"
-                            title={template.template_name}
-                            loading="lazy"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    {/* Phone notch */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-800 rounded-b-2xl" />
-                  </div>
-                </motion.div>
-                <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`} target="_blank">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="mt-8 px-8 py-3 bg-violet-600 text-white rounded-xl font-bold shadow-lg hover:bg-violet-700 transition-colors"
-                  >
-                    {template.template_name}
-                  </motion.button>
-                </Link>
-              </div>
-            ))
-          )}
-        </div>
-        
       </div>
     </section>
   );

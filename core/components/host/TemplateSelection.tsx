@@ -38,6 +38,7 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
         }));
         
         setTemplates(formattedTemplates);
+        console.log(formattedTemplates)
       } catch (error) {
         console.error('Failed to fetch templates:', error);
       } finally {

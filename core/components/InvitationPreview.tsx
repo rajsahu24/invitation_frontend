@@ -39,8 +39,7 @@ export default function InvitationPreview({
   const [iframeReady, setIframeReady] = useState(false);
   const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${invitationData?.invitation_type}/${invitationData?.invitation_template_id}`
   // Reset iframe ready state when modal closes
-  console.log("invitation_url", invitation_url)
-  console.log(invitationData)
+
   useEffect(() => {
     if (!isOpen) {
       setIframeReady(false);

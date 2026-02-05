@@ -13,6 +13,7 @@ export default function LandingPage() {
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <Navigation />
       <Hero />
+      <Templates />
       <Features />
       <HowItWorks />
       <Testimonials />
