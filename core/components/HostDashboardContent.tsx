@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Sparkles, ArrowLeft, Search, Bell, Calendar, Plus, Edit, Image as ImageIcon, Layout, Users, BarChart3, Heart, Trash2 } from "lucide-react";
 import { useHostStore } from "../../lib/store";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import TemplateModal from "./host/TemplateModal";
 import PreviewPane from "./host/PreviewPane";
 import EventForm from "./host/EventForm";
 import PhotoGallery from "./host/PhotoGallery";
+import { TemplateSection } from "../dataModels/templateFieldDataModel";
 
 interface Guest {
   id: string;
@@ -40,46 +41,37 @@ interface Invitation {
   updated_at: string;
 }
 
-const TEMPLATES = [
-  {
-    id: '1',
-    name: 'Classic Wedding',
-    category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
-  },
-  {
-    id: '2',
-    name: 'Modern Wedding',
-    category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
-  },
-  {
-    id: '3',
-    name: 'Birthday Celebration',
-    category: 'Birthday',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
-  },  
-  {
-    id: '4',
-    name: 'culture wedding',
-    category: 'Wedding',
-    thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}`
-  }
-];
 
-function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
-  const { currentInvitationId, selectedTemplate } = useHostStore();
+
+function HostDashboardContent({ 
+  guests = [], 
+  templateSection,
+  invitation,
+  invitationId 
+}: { 
+  guests?: Guest[]; 
+  templateSection?: TemplateSection[];
+  invitation?: Invitation;
+  invitationId?: string;
+}) {
+  const { currentInvitationId, setCurrentInvitation, selectedTemplate } = useHostStore();
   
-  const [invitationDetails, setInvitationDetails] = useState<Invitation >();
-  const [activeTab, setActiveTab] = useState("details");
-  const [eventsList, setEventsList] = useState<any[]>([]);
-  const [showEventForm, setShowEventForm] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [invitationDetails, setInvitationDetails] = useState<Invitation | undefined>(invitation);
+  
+  // Set default active tab to 'invitation_details'
+  const [activeTab, setActiveTab] = useState('hero_section');
   const [showAddGuest, setShowAddGuest] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [newGuest, setNewGuest] = useState({ name: "", email: "", phone: "" });
   const [guestFile, setGuestFile] = useState<File | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Sync store with invitationId from URL
+  useEffect(() => {
+    if (invitationId && currentInvitationId !== invitationId) {
+      setCurrentInvitation(invitationId);
+    }
+  }, [invitationId, currentInvitationId, setCurrentInvitation]);
 
   // Real-time preview data state
   const [realTimePreviewData, setRealTimePreviewData] = useState<{
@@ -92,10 +84,9 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
     events?: any[];
   } | null>(null);
   
-  // Fetch invitation details
+  // Fetch invitation details if not provided by prop
   const fetchInvitationDetails = async () => {
-    console.log(selectedTemplate)
-    if (!currentInvitationId) return;
+    if (!currentInvitationId || invitationDetails) return;
     try {
       const response = await fetch(`/api/invitations/${currentInvitationId}`, {
         credentials: 'include'
@@ -110,49 +101,19 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   };
 
   useEffect(() => {
-    fetchInvitationDetails();
+    if (!invitationDetails) {
+        fetchInvitationDetails();
+    }
   }, [currentInvitationId]);
 
-  // Fetch events
-  const fetchEvents = async () => {
-      if (!currentInvitationId) return;
-      try {
-        const response = await fetch(`/api/invitations/event/${currentInvitationId}`, {
-          credentials: 'include'
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setEventsList(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch events:', error);
-      }
-    };
+
 
   useEffect(() => {
-    fetchEvents();
-  }, [currentInvitationId]);
-  const handleUpdateInvitation = async (data: Partial<Invitation>) => {
-    try {
-      await fetch(`/api/invitations/${currentInvitationId}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      // Refresh local state to reflect changes
-      fetchInvitationDetails();
-    } catch (error) {
-      console.error('Failed to save invitation data:', error);
+    if (!activeTab) {
+      setActiveTab('hero_section');
     }
-  };
+  }, [activeTab]);
 
-  const handleTemplateSelect = (template: any) => {
-    handleUpdateInvitation({
-        invitation_template_id: template.id,
-        invitation_type: template.category.toLowerCase()
-    });
-  };
 
   const handleAddGuest = async () => {
       
@@ -212,8 +173,8 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${invitationDetails?.invitation_type}/${invitationDetails?.invitation_template_id}/${currentInvitationId}`;
   
   
-  // Handler for real-time preview updates from DetailsForm
-  const handleRealTimeUpdate = (data: {
+  
+  const handleRealTimeUpdate = useCallback((data: {
     invitation_title?: string;
     invitation_message?: string;
     invitation_tag_line?: string;
@@ -222,28 +183,9 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
   }) => {
     
     setRealTimePreviewData(data);
-  };
+  }, []);
 
-  const handleDeleteEvent = async (eventId: string) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
-    
-    try {
-      const response = await fetch(`/api/events/${eventId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        fetchEvents(); // Refresh events list
-        setRefreshKey(prev => prev + 1); // Trigger iframe reload
-      } else {
-        alert('Failed to delete event');
-      }
-    } catch (error) {
-      console.error('Failed to delete event:', error);
-      alert('Failed to delete event. Please try again.');
-    }
-  };
+
 
   const Header = (
     <div className="bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm">
@@ -299,38 +241,72 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
     </>
   );
 
+  
+  const tabs = useMemo(() => {
+    const tabsList: Array<{ id: string; label: string; icon: any,  }> = [
+    
+    ];
+    
+    if (templateSection && Array.isArray(templateSection)) {
+      templateSection
+        .filter(section => section.is_active )
+        .sort((a, b) => a.display_order - b.display_order)
+        .forEach((section) => {
+          tabsList.push({ 
+            id: section.section_id, 
+            label: section.section_type, 
+            icon: section.section_type === 'event_section' ? Calendar : Sparkles 
+          });
+        });
+    }
+    
+    
+    
+    return tabsList;
+  }, [templateSection]);
+    
   const Main = (
     <div className="bg-white rounded-3xl shadow-xl border border-white/20 overflow-hidden flex flex-col min-h-[600px]">
-        {/* Tabs */}
-        <div className="flex border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
-            {[
-                { id: "details", label: "Details", icon: Edit },
-                { id: "events", label: "Events", icon: Calendar },
-                { id: "photos", label: "Photos", icon: ImageIcon },
-            ].map((tab) => (
-                <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all ${
-                    activeTab === tab.id
-                        ? "text-violet-600 bg-white border-b-2 border-violet-600 shadow-sm"
-                        : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
-                    }`}
-                >
-                    <tab.icon className="w-4 h-4" />
-                    {tab.label}
-                </button>
-            ))}
+        
+        <div className="relative border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
+            <div className="flex overflow-x-auto custom-scrollbar-h scroll-smooth">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.label)}
+                        className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                        activeTab === tab.label
+                            ? "text-violet-600 bg-white border-b-2 border-violet-600 shadow-sm"
+                            : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                        }`}
+                    >
+                        <tab.icon className="w-4 h-4" />
+                        {tab.label.replace("_"," ").toUpperCase()}
+                    </button>
+                ))}
+            </div>
+            
+            {/* Scroll Indicator Gradients */}
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50/50 to-transparent pointer-events-none md:hidden" />
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50/50 to-transparent pointer-events-none md:hidden" />
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1">
-             {activeTab === "details" && invitationDetails && (
-                <DetailsForm 
-                    initialData={invitationDetails} 
-                    onSave={handleUpdateInvitation}
-                    onRealTimeUpdate={handleRealTimeUpdate}
-                />
-             )}
+        <div className="p-6 overflow-y-auto flex-1 h-full">
+
+             {templateSection && templateSection.map((section) => {
+                
+                if (activeTab === section.section_type && invitationDetails) {
+                  
+                  return (
+                    <DetailsForm 
+                      key={section.section_id}
+                      onRealTimeUpdate={handleRealTimeUpdate}
+                      section={section}
+                    />
+                  );
+                }
+                return null;
+             })}
 
              {activeTab === "photos" && invitationDetails?.id && (
                  <PhotoGallery 
@@ -338,67 +314,11 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
                      onImageUpload={() => setRefreshKey(prev => prev + 1)}
                  />
              )}
-
-             {activeTab === "events" && (
-                <div className="space-y-6">
-                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <Calendar className="w-5 h-5 text-violet-500" />
-                                Sub-Events
-                            </h3>
-                            <button
-                                onClick={() => setShowEventForm(true)}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-violet-50 text-violet-600 rounded-lg text-sm font-medium hover:bg-violet-100"
-                            >
-                                <Plus className="w-4 h-4" /> Add Event
-                            </button>
-                        </div>
-                        
-                        {eventsList.length === 0 ? (
-                            <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                <p className="text-sm">No sub-events created yet.</p>
-                            </div>
-                        ) : (
-                            <div className="grid gap-3">
-                                {eventsList.map((event) => (
-                                    <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900 text-sm">{event.name}</h4>
-                                            <p className="text-xs text-gray-500">{new Date(event.start_time).toLocaleString()}</p>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <button 
-                                                onClick={() => {
-                                                    setEditingEvent(event);
-                                                    setShowEventForm(true);
-                                                }}
-                                                className="p-2 text-gray-400 hover:text-violet-600 hover:bg-white rounded-lg transition-colors"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteEvent(event.id)}
-                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-white rounded-lg transition-colors"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-             )}
         </div>
     </div>
   );
   // console.log(realTimePreviewData)
-  if(selectedTemplate){
-    console.log("selectedTemplate",selectedTemplate.thumbnail)
-    console.log("selectedTemplate",invitation_url)
-  }
+
 
   return (
     <>
@@ -406,32 +326,19 @@ function HostDashboardContent({ guests = [] }: { guests?: Guest[] }) {
         header={Header}
         sidebar={Sidebar}
         main={Main}
-        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} public_id={invitationDetails?.public_id} refreshKey={refreshKey} />}
+        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} public_id={invitationDetails?.public_id} invitation_id={invitationDetails.id} refreshKey={refreshKey} />}
       />
 
       {/* Modals */}
       <TemplateModal 
         isOpen={showTemplateModal}
         onClose={() => setShowTemplateModal(false)}
-        
+        // onSelectTemplate={handleTemplateSelect}
         currentTemplateId={invitationDetails?.invitation_template_id || ''}
         invitationDetails={invitationDetails}
-        
       />
 
-      {showEventForm && (
-        <EventForm
-            invitationId={currentInvitationId || ''}
-            eventId={editingEvent?.id}
-            eventData={editingEvent}
-            onCancel={() => {
-                setShowEventForm(false);
-                setEditingEvent(null);
-                fetchEvents();
-                setRefreshKey(prev => prev + 1); // Trigger iframe reload
-            }}
-        />
-      )}
+
 
       {/* Add Guest Modal */}
       <AnimatePresence>

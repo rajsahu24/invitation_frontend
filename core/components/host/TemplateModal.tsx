@@ -24,13 +24,15 @@ interface TemplateModalProps {
   onClose: () => void;
   currentTemplateId: string;
   invitationDetails: Invitation | undefined;
+  onSelectTemplate?: (template: Template) => void;
 }
 
 const TemplateModal: React.FC<TemplateModalProps> = ({ 
   isOpen, 
   onClose, 
   currentTemplateId,
-  invitationDetails
+  invitationDetails,
+  onSelectTemplate
 }) => {
   const [category, setCategory] = useState<string>('All');
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -44,6 +46,11 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
           const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
           const data = await response.json();
           setTemplates(data);
+          
+          // Set initial category based on invitation type if available
+          if (invitationDetails?.invitation_type) {
+            setCategory(invitationDetails.invitation_type);
+          }
         } catch (error) {
           console.error('Failed to fetch templates:', error);
         } finally {
@@ -53,16 +60,31 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
 
       fetchTemplates();
     }
-  }, [isOpen]);
+  }, [isOpen, invitationDetails?.invitation_type]);
   
-  const categories = ['All', ...Array.from(new Set(templates.map(t => t.template_type)))];
+  // Filter categories to only show the one matching the invitation type
+  const allCategories = Array.from(new Set(templates.map(t => t.template_type.toLowerCase())));
+  const categories = invitationDetails?.invitation_type 
+    ? allCategories.filter(cat => cat === invitationDetails.invitation_type.toLowerCase())
+        .map(cat => cat.charAt(0).toUpperCase() + cat.slice(1))
+    : ['All', ...allCategories.map(cat => cat.charAt(0).toUpperCase() + cat.slice(1))];
   
-  const filteredTemplates = category === 'All' 
-    ? templates 
-    : templates.filter(t => t.template_type.toLowerCase() === category.toLowerCase());
+  const filteredTemplates = templates.filter(t => {
+    const templateType = t.template_type.toLowerCase();
+    const invitationType = invitationDetails?.invitation_type?.toLowerCase();
+    
+    if (invitationType) {
+      return templateType === invitationType;
+    }
+    
+    return category === 'All' || templateType === category.toLowerCase();
+  });
 
   const handleTemplateSelect = (template: Template) => {
     setSelectedTemplate(template);
+    if (onSelectTemplate) {
+      onSelectTemplate(template);
+    }
     onClose();
   };
 

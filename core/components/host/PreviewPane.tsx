@@ -16,25 +16,25 @@ interface PreviewPaneProps {
   realTimeData?: RealTimeData | null;
   public_id: string;
   refreshKey?: number;
+  invitation_id:string
 }
 
-const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey }) => {
+const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey, invitation_id }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [templateUrl, setTemplateUrl] = useState<string>('');
   const { selectedTemplate } = useHostStore();
-  
+  const button_url =  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`
   useEffect(() => {
     console.log('PreviewPane useEffect triggered:', { public_id, selectedTemplate, refreshKey });
-    
+    console.log(selectedTemplate) 
     const updateTemplateUrl = async () => {
       try {
-        // Priority logic for preview URL:
-        // 1. If we have a temporary selectedTemplate (for previewing before save)
-        // 2. Otherwise, if we have a public_id (for the currently saved invitation)
         
         if (selectedTemplate) {
-           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${selectedTemplate.id}`;
+          const templateName = selectedTemplate.template_name.replace(/ /g, "_")
+           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/preview/${selectedTemplate.template_type}/${templateName}/${invitation_id}`;
            console.log('Using selectedTemplate preview URL:', constructedUrl);
+           console.log(`/preview/${selectedTemplate.template_type}/${selectedTemplate.template_name}/${invitation_id}`)
            setTemplateUrl(constructedUrl);
         } else if (public_id) {
            const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`;
@@ -110,7 +110,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
         
         <div className="flex items-center gap-2">
            <a 
-             href={templateUrl} 
+             href={button_url} 
              target="_blank" 
              rel="noreferrer"
              className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-violet-600 transition-colors"

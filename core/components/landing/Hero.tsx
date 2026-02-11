@@ -20,6 +20,7 @@ export default function Hero() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
         const data = await response.json();
+        console.log(data)
         setTemplates(data.slice(0, 4)); // Show only first 2 templates
       } catch (error) {
         console.error('Failed to fetch templates:', error);
