@@ -13,8 +13,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "InviteHub - Create Beautiful Invitations in Minutes",
-  description: "Design stunning event invitations with ease. Perfect for weddings, birthdays, corporate events, and more. No design skills required.",
+  title: "Inviteera – Create Beautiful Online Invitations & Track RSVPs",
+  description:
+    "Inviteera is an online invitation maker to design, send, and track RSVPs for weddings, birthdays, corporate events, and more.",
+  keywords: [
+    "online invitation maker",
+    "wedding invitation website",
+    "digital invites",
+    "RSVP tracking",
+    "birthday invitation maker"
+  ],
+  openGraph: {
+    title: "Inviteera – Online Invitation Maker",
+    description:
+      "Design stunning invitations and manage RSVPs in one place.",
+    url: "https://inviteera.com",
+    siteName: "Inviteera",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

@@ -9,14 +9,14 @@ const testimonials = [
     role: 'Wedding Planner',
     image: '👰',
     rating: 5,
-    text: 'InviteHub made creating wedding invitations so easy! My clients love the beautiful designs and the RSVP tracking feature is a game-changer.',
+    text: 'InviteEra made creating wedding invitations so easy! My clients love the beautiful designs and the RSVP tracking feature is a game-changer.',
   },
   {
     name: 'Michael Chen',
     role: 'Event Coordinator',
     image: '🎉',
     rating: 5,
-    text: 'I use InviteHub for all my corporate events. The professional templates and easy customization save me hours of work.',
+    text: 'I use InviteEra for all my corporate events. The professional templates and easy customization save me hours of work.',
   },
   {
     name: 'Emily Rodriguez',

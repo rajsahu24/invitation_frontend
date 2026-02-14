@@ -7,6 +7,7 @@ import Testimonials from '@/core/components/landing/Testimonials';
 import CTA from '@/core/components/landing/CTA';
 import Footer from '@/core/components/landing/Footer';
 import ScrollToTop from '@/core/components/ui/ScrollToTop';
+import FAQSection from '@/core/components/landing/FAQSection';
 
 export default function LandingPage() {
   return (
@@ -18,6 +19,7 @@ export default function LandingPage() {
       <HowItWorks />
       <Testimonials />
       <CTA />
+      <FAQSection />
       <Footer />
       <ScrollToTop />
     </main>

@@ -47,7 +47,7 @@ export default function Footer() {
               transition={{ duration: 0.6 }}
             >
               <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                InviteHub
+                InviteEra
               </h3>
               <p className="text-blue-200 mb-6 leading-relaxed">
                 Create beautiful, memorable invitations for all your special moments. 
@@ -58,7 +58,7 @@ export default function Footer() {
               <div className="space-y-3 text-sm text-blue-200">
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4" />
-                  <span>hello@invitehub.com</span>
+                  <span>hello@InviteEra.com</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4" />
@@ -111,7 +111,7 @@ export default function Footer() {
               transition={{ duration: 0.6 }}
               className="text-blue-300 text-sm flex items-center gap-2"
             >
-              © 2026 InviteHub. Made with <Heart className="w-4 h-4 text-red-400 fill-current" /> for amazing events
+              © 2026 InviteEra. Made with <Heart className="w-4 h-4 text-red-400 fill-current" /> for amazing events
             </motion.p>
 
             {/* Social links */}
