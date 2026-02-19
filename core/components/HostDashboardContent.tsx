@@ -83,6 +83,7 @@ function HostDashboardContent({
     invitation_type?: string;
     metadata?: Record<string, any>;
     events?: any[];
+    section_type?: string;
   } | null>(null);
   
   // Fetch invitation details if not provided by prop
@@ -181,6 +182,7 @@ function HostDashboardContent({
     invitation_tag_line?: string;
     invitation_type?: string;
     metadata?: Record<string, any>;
+    section_type?: string;
   }) => {
     
     setRealTimePreviewData(data);

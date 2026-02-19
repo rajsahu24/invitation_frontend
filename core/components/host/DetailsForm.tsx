@@ -12,6 +12,7 @@ interface RealTimeData {
   invitation_tag_line?: string;
   invitation_type?: string;
   metadata?: Record<string, any>;
+  section_type?: string;
 }
 
 interface DetailsFormProps {
@@ -150,7 +151,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
           }
 
           setHasExistingData(true);
-          triggerRealTimeUpdate({ metadata: fetchedData });
+          triggerRealTimeUpdate({ metadata: fetchedData, section_type: section.section_type });
         } else {
           setdata({});
           setSavedData({});
@@ -276,7 +277,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
       }
       setHasExistingData(true);
       setIsDirty(false);
-      triggerRealTimeUpdate({ metadata: {} });
+      triggerRealTimeUpdate({ metadata: {}, section_type: section.section_type });
     } catch (err) {
       alert("Failed to save changes. Please try again.");
     } finally {
@@ -295,17 +296,21 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
       newEntries[index] = { ...newEntries[index], [field]: value };
       setRepeatedEntries(newEntries);
       setIsDirty(true);
+      triggerRealTimeUpdate({ metadata: newEntries, section_type: section.section_type });
     } else {
       const newdata = { ...data, [field]: value };
       setdata(newdata);
       setIsDirty(true);
-      triggerRealTimeUpdate({ metadata: newdata });
+      if(!section) return
+      triggerRealTimeUpdate({ metadata: newdata, section_type: section.section_type });
     }
   };
 
   const addRepeatedEntry = () => {
-    setRepeatedEntries([...repeatedEntries, {}]);
+    const newEntries = [...repeatedEntries, {}];
+    setRepeatedEntries(newEntries);
     setIsDirty(true);
+    triggerRealTimeUpdate({ metadata: newEntries, section_type: section?.section_type });
   };
 
   const removeRepeatedEntry = async (id: string, index: number) => {
@@ -325,8 +330,10 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
       }
     }
 
-    setRepeatedEntries(repeatedEntries.filter((_, i) => i !== index));
+    const updatedEntries = repeatedEntries.filter((_, i) => i !== index);
+    setRepeatedEntries(updatedEntries);
     setIsDirty(true);
+    triggerRealTimeUpdate({ metadata: updatedEntries, section_type: section?.section_type });
   };
 
   const updateRepeatedEntry = async (id: string, index: number) => {

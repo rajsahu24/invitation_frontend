@@ -1,20 +1,31 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { ExternalLink, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ExternalLink, Sparkles, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 
 interface Template {
   id: string;
-  name: string;
-  category: string;
+  template_name?: string;
+  template_image?: string;
+  name?: string;
 }
 
 function Templates() {
     const [templates, setTemplates] = useState<Template[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [scrolledTemplates, setScrolledTemplates] = useState<Set<string>>(new Set());
+    const scrollContainerRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+    const getTemplateName = (template: Template) => template.template_name || template.name || 'Template';
+
+    const handleScroll = (templateId: string, e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLDivElement;
+        if (target.scrollTop > 20) {
+            setScrolledTemplates(prev => new Set(prev).add(templateId));
+        }
+    };
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -136,37 +147,71 @@ function Templates() {
                   className="flex"
                   style={{ gap: `${MOBILE_GAP}vw` }}
                 >
-                  {templates.map((template, idx) => (
-                    <motion.div 
-                      key={`${template.id}-mobile`} 
-                      style={{ minWidth: `${MOBILE_WIDTH}vw` }}
-                      animate={{ 
-                        scale: currentIndex === idx ? 1 : 0.9,
-                        opacity: currentIndex === idx ? 1 : 0.5 
-                      }}
-                      transition={{ duration: 0.4 }}
-                      className="flex flex-col items-center"
-                    >
-                      <div className="relative w-full aspect-[9/18.5] bg-gray-950 rounded-[2.8rem] p-1.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] border-[5px] border-gray-900 ring-1 ring-white/10">
-                         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-5 w-28 bg-gray-900 rounded-b-2xl z-20 flex justify-center items-start pt-1">
-                            <div className="w-10 h-1 bg-gray-800 rounded-full" />
-                         </div>
-                         <div className="w-full h-full bg-slate-50 rounded-[2.2rem] overflow-hidden relative">
-                            <iframe 
-                              src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`}
-                              className="w-full h-full border-0 pointer-events-none"
-                              title={template.name}
-                            />
-                         </div>
-                      </div>
-                      <div className="mt-8 text-center">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 truncate max-w-full">{template.name}</h3>
-                        <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`} target="_blank" className="inline-flex items-center gap-1.5 text-blue-600 font-bold text-xs bg-blue-50 px-4 py-2 rounded-full">
-                           View Demo <ExternalLink className="w-3.5 h-3.5" />
-                        </Link>
-                      </div>
-                    </motion.div>
-                  ))}
+                   {templates.map((template, idx) => (
+                     <motion.div 
+                       key={`${template.id}-mobile`} 
+                       style={{ minWidth: `${MOBILE_WIDTH}vw` }}
+                       animate={{ 
+                         scale: currentIndex === idx ? 1 : 0.9,
+                         opacity: currentIndex === idx ? 1 : 0.5 
+                       }}
+                       transition={{ duration: 0.4 }}
+                       className="flex flex-col items-center"
+                     >
+                       <div className="relative w-full aspect-[9/18.5] bg-gray-950 rounded-[2.8rem] p-1.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] border-[5px] border-gray-900 ring-1 ring-white/10">
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-5 w-28 bg-gray-900 rounded-b-2xl z-20 flex justify-center items-start pt-1">
+                             <div className="w-10 h-1 bg-gray-800 rounded-full" />
+                          </div>
+                          <div className="w-full h-full bg-slate-50 rounded-[2.2rem] overflow-hidden relative">
+                             <div 
+                               ref={(el) => { scrollContainerRefs.current[`${template.id}-mobile`] = el; }}
+                               onScroll={(e) => handleScroll(`${template.id}-mobile`, e)}
+                               className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+                             >
+                               {template.template_image ? (
+                                 <img
+                                   src={template.template_image}
+                                   className="w-full h-auto block select-none"
+                                   alt={getTemplateName(template)}
+                                   loading="lazy"
+                                 />
+                               ) : (
+                                 <div className="w-full h-full grid place-items-center text-xs text-gray-400">
+                                   Preview unavailable
+                                 </div>
+                               )}
+                             </div>
+                             {/* Scroll indicator gradient and hint */}
+                             <AnimatePresence>
+                               {!scrolledTemplates.has(`${template.id}-mobile`) && template.template_image && (
+                                 <motion.div 
+                                   initial={{ opacity: 0 }}
+                                   animate={{ opacity: 1 }}
+                                   exit={{ opacity: 0 }}
+                                   transition={{ duration: 0.3 }}
+                                   className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none flex flex-col items-center justify-end pb-3"
+                                 >
+                                   <motion.div
+                                     animate={{ y: [0, 4, 0] }}
+                                     transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                     className="flex flex-col items-center"
+                                   >
+                                     <span className="text-[10px] text-gray-400 font-medium mb-0.5">Scroll</span>
+                                     <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                                   </motion.div>
+                                 </motion.div>
+                               )}
+                             </AnimatePresence>
+                          </div>
+                       </div>
+                       <div className="mt-8 text-center">
+                         <h3 className="text-xl font-bold text-gray-900 mb-2 truncate max-w-full">{getTemplateName(template)}</h3>
+                         <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`} target="_blank" className="inline-flex items-center gap-1.5 text-blue-600 font-bold text-xs bg-blue-50 px-4 py-2 rounded-full">
+                            View Demo <ExternalLink className="w-3.5 h-3.5" />
+                         </Link>
+                       </div>
+                     </motion.div>
+                   ))}
                 </motion.div>
               </div>
 
@@ -187,15 +232,49 @@ function Templates() {
                             <div className="w-12 h-1 bg-gray-800 rounded-full" />
                          </div>
                          <div className="w-full h-full bg-slate-50 rounded-[2.4rem] overflow-hidden relative">
-                            <iframe 
-                              src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`}
-                              className="w-full h-full border-0 pointer-events-none"
-                              title={template.name}
-                            />
+                            <div 
+                              ref={(el) => { scrollContainerRefs.current[`${template.id}-desktop`] = el; }}
+                              onScroll={(e) => handleScroll(`${template.id}-desktop`, e)}
+                              className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+                            >
+                              {template.template_image ? (
+                                <img
+                                  src={template.template_image}
+                                  className="w-full h-auto block select-none"
+                                  alt={getTemplateName(template)}
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full grid place-items-center text-xs text-gray-400">
+                                  Preview unavailable
+                                </div>
+                              )}
+                            </div>
+                            {/* Scroll indicator gradient and hint */}
+                            <AnimatePresence>
+                              {!scrolledTemplates.has(`${template.id}-desktop`) && template.template_image && (
+                                <motion.div 
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none flex flex-col items-center justify-end pb-4"
+                                >
+                                  <motion.div
+                                    animate={{ y: [0, 5, 0] }}
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                    className="flex flex-col items-center"
+                                  >
+                                    <span className="text-xs text-gray-400 font-medium mb-1">Scroll to explore</span>
+                                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                                  </motion.div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                          </div>
                       </div>
                       <div className="mt-8 text-center">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{template.name}</h3>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{getTemplateName(template)}</h3>
                         <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`} target="_blank" className="inline-flex items-center gap-1.5 text-blue-600 font-bold text-xs bg-blue-50 px-4 py-2 rounded-full">
                            View Demo <ExternalLink className="w-3.5 h-3.5" />
                         </Link>

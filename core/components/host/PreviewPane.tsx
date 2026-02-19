@@ -8,6 +8,7 @@ interface RealTimeData {
   invitation_tag_line?: string;
   invitation_type?: string;
   metadata?: Record<string, any>;
+  section_type?: string;
 }
 
 interface PreviewPaneProps {
