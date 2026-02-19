@@ -2,40 +2,41 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TemplateSection } from '@/core/dataModels/templateFieldDataModel';
 
 interface PhotoGalleryProps {
   initialPhotos?: string[];
   onUpload?: (files: FileList) => Promise<void>;
   invitationId: string;
   onImageUpload?: () => void;
+  section:TemplateSection;
 }
 
 interface InvitationImage {
-  id: string;
-  invitation_id: string;
+  type: string;
   image_url: string;
   public_id: string;
-  type: "general" | string;
-  position: number | null;
-  created_at: string; // ISO date string
-  updated_at: string; // ISO date string
 }
 
-const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, onImageUpload }) => {
+const PhotoGallery: React.FC<PhotoGalleryProps> = ({ section, onUpload, invitationId, onImageUpload }) => {
+  console.log("Hellosdkjfalkjdlkjldksajl",section)
   const [photos, setPhotos] = useState<InvitationImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPhotos = async () => {
+    if (!section?.invitation_id || !section?.section_id) return;
+    
     try {
-      const response = await fetch(`/api/invitations/image/${invitationId}`, {
-        credentials: 'include'
-      });
+      const response = await fetch(
+        `/api/invitation-data/invitation/${section.invitation_id}/template_section/${section.section_id}`,
+        { credentials: 'include' }
+      );
       
       if (response.ok) {
-        const data = await response.json();
-        setPhotos(data || []);
-        
+        const result = await response.json();
+        const fetchedImages = result.data.images || [];
+        setPhotos(fetchedImages);
       }
     } catch (error) {
       console.error('Failed to fetch photos:', error);
@@ -45,27 +46,32 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
   };
 
   useEffect(() => {
-    if (invitationId) {
+    if (section?.invitation_id && section?.section_id) {
       fetchPhotos();
     }
-  }, [invitationId]);
-  const uploadToAPI = async (file: File): Promise<InvitationImage> => {
+  }, [section?.invitation_id, section?.section_id]);
+  const uploadToAPI = async (file: File): Promise<InvitationImage | null> => {
+    if (!section?.invitation_id || !section?.section_id) return null;
+
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('invitation_id', invitationId);
+    formData.append('invitation_id', section.invitation_id);
+    formData.append('template_section_id', section.section_id);
     
-    const response = await fetch(`/api/invitations/image`, {
+    const response = await fetch('/api/invitation-data/image', {
       method: 'POST',
+      credentials: 'include',
       body: formData,
-      credentials: 'include'
     });
     
-    if (!response.ok) {
-      throw new Error('Upload failed');
-    }
+    if (!response.ok) throw new Error('Upload failed');
 
     const result = await response.json();
-    return result;
+    return {
+      type: 'general',
+      image_url: result.url,
+      public_id: result.public_id
+    };
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,15 +79,11 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
       setIsUploading(true);
       
       try {
-        if (onUpload) {
-          console.log()
-          await onUpload(e.target.files);
-        } else {
-          const uploadPromises = Array.from(e.target.files).map(uploadToAPI);
-          const uploadedImages = await Promise.all(uploadPromises);
-          setPhotos(prev => [...prev, ...uploadedImages]);
-          onImageUpload?.(); // Trigger iframe reload
-        }
+        const uploadPromises = Array.from(e.target.files).map(uploadToAPI);
+        const uploadedImages = await Promise.all(uploadPromises);
+        const validImages = uploadedImages.filter((img): img is InvitationImage => img !== null);
+        setPhotos(prev => [...prev, ...validImages]);
+        onImageUpload?.();
       } catch (error) {
         console.error('Upload failed:', error);
         alert('Failed to upload photos. Please try again.');
@@ -91,19 +93,28 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
     }
   };
 
-  const removePhoto = async (imageId: string) => {
-    try {
-      const response = await fetch(`/api/invitations/image/${imageId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+  const removePhoto = async (publicId: string) => {
+    if (!section?.invitation_id || !section?.section_id) return;
 
-      if (response.ok) {
-        setPhotos(prev => prev.filter(photo => photo.id !== imageId));
-        onImageUpload?.(); // Trigger iframe reload
-      } else {
-        throw new Error('Delete failed');
-      }
+    try {
+      const response = await fetch(
+        '/api/invitation-data/image/c339d99c-fbe7-45f4-81b9-0cd721960edf',
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            invitation_id: section.invitation_id,
+            template_section_id: section.section_id,
+            public_id: publicId,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Delete failed');
+
+      setPhotos(prev => prev.filter(img => img.public_id !== publicId));
+      onImageUpload?.();
     } catch (error) {
       console.error('Failed to delete photo:', error);
       alert('Failed to delete photo. Please try again.');
@@ -167,7 +178,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({  onUpload, invitationId, on
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <button 
-                    onClick={() => removePhoto(photo.id)}
+                    onClick={() => removePhoto(photo.public_id)}
                     className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-red-500/80 transition-colors"
                   >
                     <X className="w-5 h-5" />

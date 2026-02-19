@@ -16,6 +16,7 @@ import EventForm from "./host/EventForm";
 import PhotoGallery from "./host/PhotoGallery";
 import { TemplateSection } from "../dataModels/templateFieldDataModel";
 
+
 interface Guest {
   id: string;
   name: string;
@@ -294,9 +295,17 @@ function HostDashboardContent({
         <div className="p-6 overflow-y-auto flex-1 h-full">
 
              {templateSection && templateSection.map((section) => {
-                
                 if (activeTab === section.section_type && invitationDetails) {
-                  
+                  if (section.section_type === "image_section") {
+                    return (
+                      <PhotoGallery 
+                        key={section.section_id}
+                        invitationId={invitationDetails.id} 
+                        onImageUpload={() => setRefreshKey(prev => prev + 1)}
+                        section={section}
+                      />
+                    );
+                  }
                   return (
                     <DetailsForm 
                       key={section.section_id}
@@ -308,12 +317,7 @@ function HostDashboardContent({
                 return null;
              })}
 
-             {activeTab === "photos" && invitationDetails?.id && (
-                 <PhotoGallery 
-                     invitationId={invitationDetails?.id} 
-                     onImageUpload={() => setRefreshKey(prev => prev + 1)}
-                 />
-             )}
+
         </div>
     </div>
   );
