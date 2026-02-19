@@ -10,6 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       next: { revalidate: 3600 }
     })
     if (res.ok) {
+        console.log(res)
       const invitations = await res.json()
       dynamicUrls = invitations.map((item: any) => ({
         url: `${baseUrl}/invitation/${item.id}`,
@@ -27,42 +28,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: baseUrl,
       lastModified: new Date(),
       priority: 1,
+      changeFrequency: 'weekly',
     },
     {
       url: `${baseUrl}/#templates`,
       lastModified: new Date(),
       priority: 0.9,
+      changeFrequency: 'monthly',
     },
     {
       url: `${baseUrl}/#pricing`,
       lastModified: new Date(),
       priority: 0.5,
+      changeFrequency: 'monthly',
     },
     {
       url: `${baseUrl}/#how-it-works`,
       lastModified: new Date(),
       priority: 0.5,
+      changeFrequency: 'monthly',
     },
     {
       url: `${baseUrl}/#features`,
       lastModified: new Date(),
       priority: 0.5,
+        changeFrequency: 'monthly',
     },
 
     {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
       priority: 0.5,
+        changeFrequency: 'monthly',
     },
     {
       url: `${baseUrl}/login`,
       lastModified: new Date(),
       priority: 0.2,
+        changeFrequency:
+        'yearly',
     },
     {
       url: `${baseUrl}/signup`,
       lastModified: new Date(),
       priority: 0.2,
+      changeFrequency: 'yearly',
     },
 
     ...dynamicUrls,
