@@ -69,9 +69,9 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              className="p-2 bg-gray-600 hover:bg-gray-800 rounded-full transition-colors"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-6 h-6 " />
             </button>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Choose Template</h1>

@@ -49,7 +49,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
     };
 
     updateTemplateUrl();
-  }, [public_id, selectedTemplate, refreshKey]);
+  }, [public_id, selectedTemplate, refreshKey, invitation_id]);
   // Extract the target origin from the URL for secure postMessage
   const getTargetOrigin = (iframeUrl: string): string => {
     try {
