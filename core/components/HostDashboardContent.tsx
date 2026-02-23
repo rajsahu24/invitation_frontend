@@ -176,6 +176,33 @@ function HostDashboardContent({
   
   
   
+  const handleTemplateSelect = async (template: any) => {
+    if (!currentInvitationId) return;
+    
+    try {
+      const response = await fetch(`/api/invitations/${currentInvitationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          invitation_template_id: template.id
+        })
+      });
+
+      if (response.ok) {
+        const updatedInvitation = await response.json();
+        setInvitationDetails(updatedInvitation);
+        console.log('Template updated successfully in backend');
+      } else {
+        console.error('Failed to update template in backend');
+      }
+    } catch (error) {
+      console.error('Error updating template:', error);
+    }
+  };
+
   const handleRealTimeUpdate = useCallback((data: {
     invitation_title?: string;
     invitation_message?: string;
@@ -332,14 +359,14 @@ function HostDashboardContent({
         header={Header}
         sidebar={Sidebar}
         main={Main}
-        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} public_id={invitationDetails?.public_id} invitation_id={invitationDetails.id} refreshKey={refreshKey} />}
+        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} public_id={invitationDetails?.public_id} invitation_id={invitationDetails.id} refreshKey={refreshKey} activeSection={activeTab} />}
       />
 
       {/* Modals */}
       <TemplateModal 
         isOpen={showTemplateModal}
         onClose={() => setShowTemplateModal(false)}
-        // onSelectTemplate={handleTemplateSelect}
+        onSelectTemplate={handleTemplateSelect}
         currentTemplateId={invitationDetails?.invitation_template_id || ''}
         invitationDetails={invitationDetails}
       />

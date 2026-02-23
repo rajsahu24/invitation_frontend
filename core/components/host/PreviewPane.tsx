@@ -17,10 +17,11 @@ interface PreviewPaneProps {
   realTimeData?: RealTimeData | null;
   public_id: string;
   refreshKey?: number;
-  invitation_id:string
+  invitation_id:string;
+  activeSection?: string;
 }
 
-const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey, invitation_id }) => {
+const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey, invitation_id, activeSection }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [templateUrl, setTemplateUrl] = useState<string>('');
   const { selectedTemplate } = useHostStore();
@@ -97,6 +98,32 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
     const timer = setTimeout(sendMessage, 1000);
     return () => clearTimeout(timer);
   }, [realTimeData, templateUrl]);
+
+  // Handle auto-scroll to section
+  useEffect(() => {
+    if (!iframeRef.current?.contentWindow || !templateUrl || !activeSection) return;
+
+    const sendScrollMessage = () => {
+      try {
+        const targetOrigin = getTargetOrigin(templateUrl);
+        console.log('Sending SCROLL_TO_SECTION message:', { activeSection, targetOrigin });
+        
+        iframeRef.current?.contentWindow?.postMessage(
+          {
+            type: 'SCROLL_TO_SECTION',
+            sectionId: activeSection
+          },
+          targetOrigin
+        );
+      } catch (error) {
+        console.error('Failed to send scroll message:', error);
+      }
+    };
+
+    const timer = setTimeout(sendScrollMessage, 800); // Wait a bit for iframe content to potentially update
+    return () => clearTimeout(timer);
+  }, [activeSection, templateUrl]);
+
   console.log("template url in preview pene",templateUrl)
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-white/20 overflow-hidden flex flex-col h-[calc(100vh-120px)] sticky top-24">
