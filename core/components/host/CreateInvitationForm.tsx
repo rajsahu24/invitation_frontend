@@ -6,13 +6,7 @@ import { Loader2 } from 'lucide-react';
 import TemplateSelection from './TemplateSelection';
 import { useRouter } from 'next/navigation';
 
-interface Template {
-  id: string;
-  name: string;
-  category: string;
-  previewUrl: string;
-  thumbnail: string;
-}
+import { Template } from '../../../lib/store';
 
 interface Props {
     onCancel: () => void;
@@ -23,6 +17,7 @@ export default function CreateInvitationForm({ onCancel }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTemplateSelect = async (template: Template) => {
+    console.log("hello",template)
     setIsSubmitting(true);
     
     try {
@@ -38,7 +33,7 @@ export default function CreateInvitationForm({ onCancel }: Props) {
 
       const formData = new FormData();
       formData.append('invitation_title', invitationTitle);
-      formData.append('invitation_type', template.category.toLowerCase());
+      formData.append('invitation_type', template.template_type.toLowerCase());
       formData.append('invitation_template_id', template.id);
       formData.append('metadata', JSON.stringify({}));
       

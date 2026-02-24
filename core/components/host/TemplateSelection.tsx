@@ -4,13 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Check } from 'lucide-react';
 
-interface Template {
-  id: string;
-  name: string;
-  category: string;
-  previewUrl: string;
-  thumbnail: string;
-}
+import { useHostStore, Template } from '../../../lib/store';
 
 interface TemplateSelectionProps {
   onSelect: (template: Template) => void;
@@ -18,11 +12,13 @@ interface TemplateSelectionProps {
 }
 
 export default function TemplateSelection({ onSelect, onBack }: TemplateSelectionProps) {
+  const { setSelectedTemplate: setStoreSelectedTemplate } = useHostStore();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [category, setCategory] = useState<string>('All');
   const [loading, setLoading] = useState(true);
 
+  console.log("local selected template", selectedTemplate);
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
@@ -31,14 +27,14 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
         
         const formattedTemplates = data.map((template: any) => ({
           id: template.id,
-          name: template.template_name,
-          category: template.template_type,
+          template_name: template.template_name,
+          template_type: template.template_type,
           previewUrl: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`,
           thumbnail: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`
         }));
         
         setTemplates(formattedTemplates);
-        console.log(formattedTemplates)
+        console.log("formattedTemplates", formattedTemplates);
       } catch (error) {
         console.error('Failed to fetch templates:', error);
       } finally {
@@ -49,14 +45,15 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
     fetchTemplates();
   }, []);
 
-  const categories = ['All', ...Array.from(new Set(templates.map(t => t.category)))];
+  const categories = ['All', ...Array.from(new Set(templates.map(t => t.template_type)))];
   const filteredTemplates = category === 'All' 
     ? templates 
-    : templates.filter(t => t.category === category);
+    : templates.filter(t => t.template_type === category);
 
   
     const handleSelect = () => {
     if (selectedTemplate) {
+
       onSelect(selectedTemplate);
     }
   };
@@ -130,7 +127,7 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
                 <iframe
                   src={template.thumbnail}
                   className="w-full h-full border-0"
-                  title={template.name}
+                  title={template.template_name}
                 />
                 {selectedTemplate?.id === template.id && (
                   <div className="absolute top-4 right-4 w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center">
@@ -141,13 +138,15 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-bold text-gray-900">{template.name}</h3>
-                    <p className="text-sm text-gray-500">{template.category}</p>
+                    <h3 className="font-bold text-gray-900">{template.template_name}</h3>
+                    <p className="text-sm text-gray-500">{template.template_type}</p>
                   </div>
                   <button
                     onClick={(e) => {
+                      console.log("Selecting template:", template);
                       e.stopPropagation();
                       setSelectedTemplate(template);
+                      setStoreSelectedTemplate(template);
                       onSelect(template);
                     }}
                     className="px-3 py-1 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 transition-colors"

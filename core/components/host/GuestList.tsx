@@ -40,7 +40,7 @@ const GuestList: React.FC<GuestListProps> = ({ guests = [], onAddGuest, invitati
   const { currentInvitationId } = useHostStore();
  
   const handleWhatsAppShare = (guest: Guest, invitation: Invitation | undefined) => {
-    const invitationUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${invitation?.invitation_type}/${invitation?.invitation_template_id}/${guest.rsvp_token}`;
+    const invitationUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${guest.rsvp_token}`;
     const message = `Hi ${guest.name}! 🎉\n\nYou're invited to ${invitation?.invitation_title}!\n\nView your invitation: ${invitationUrl}`;
     const whatsappUrl = `https://wa.me/${guest.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -137,11 +137,6 @@ const getStatusColor = (status: number) => {
         </div>
       </div>
 
-      {/* Scrollable List Area */}
-      {/* 
-        This is the critical fix: overflow-y-auto with a restricted height ensures
-        listing scrolls independently without breaking the layout.
-      */}
       <div className="overflow-y-auto flex-1 p-2 space-y-2 custom-scrollbar">
         {filteredGuests.length === 0 ? (
           <div className="text-center py-8 text-gray-500">

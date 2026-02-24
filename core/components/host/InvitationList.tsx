@@ -104,7 +104,51 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
   };
 
   useEffect(() => {
-    // Only fetch if no initial data and we have a user
+    const processPendingInvitation = async () => {
+      const pendingData = localStorage.getItem('pending_invitation');
+      if (!pendingData || !user?.id) return;
+
+      try {
+        setLoading(true);
+        const template = JSON.parse(pendingData);
+        const now = new Date();
+        const invitationTitle = now.toLocaleDateString('en-GB', { 
+          day: '2-digit', 
+          month: 'short', 
+          year: 'numeric' 
+        }) + ' ' + now.toLocaleTimeString('en-GB', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+
+        const formData = new FormData();
+        formData.append('invitation_title', invitationTitle);
+        formData.append('invitation_type', template.template_type.toLowerCase());
+        formData.append('invitation_template_id', template.id);
+        formData.append('metadata', JSON.stringify({}));
+
+        const response = await fetch(`/api/invitations`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.removeItem('pending_invitation');
+          router.push(`/host/${data.id}`);
+        }
+      } catch (error) {
+        console.error('Failed to create pending invitation:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    processPendingInvitation();
+  }, [user?.id, router]);
+
+  useEffect(() => {
     if (initialInvitations.length > 0) {
       setLoading(false);
       return;

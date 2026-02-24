@@ -3,8 +3,37 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Users, Sparkles, ArrowRight, Settings } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useHostStore, Template } from "../../lib/store";
 
 export default function LandingPage() {
+  const router = useRouter();
+  const { setSelectedTemplate } = useHostStore();
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
+        if (response.ok) {
+          const data = await response.json();
+          setTemplates(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch templates:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTemplates();
+  }, []);
+
+  const handleTemplateSelect = (template: Template) => {
+    setSelectedTemplate(template);
+    router.push('/host');
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-600 via-fuchsia-500 to-cyan-400 animate-gradient">
       {/* Hero Section */}
@@ -140,32 +169,40 @@ export default function LandingPage() {
           </motion.h2>
 
           <div className="flex flex-wrap justify-center gap-12">
-             {[1, 2].map((id) => (
-                <div key={id} className="flex flex-col items-center group">
-                  <div className="relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl border-4 border-gray-800 transition-transform duration-500 group-hover:scale-105">
-                     {/* Phone Notch */}
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-32 bg-gray-900 rounded-b-xl z-20"></div>
-                     {/* Screen */}
-                     <div className="w-full h-full bg-white rounded-[2.2rem] overflow-hidden relative">
-                        <iframe 
-                          src={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`}
-                          className="w-full h-full border-0"
-                          title={`Template ${id}`}
-                          loading="lazy"
-                        />
-                     </div>
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+              </div>
+            ) : (
+              templates.slice(0, 3).map((template) => {
+                const template_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${template.id}`;
+                return (
+                  <div key={template.id} className="flex flex-col items-center group">
+                    <div className="relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl border-4 border-gray-800 transition-transform duration-500 group-hover:scale-105">
+                       {/* Phone Notch */}
+                       <div className="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-32 bg-gray-900 rounded-b-xl z-20"></div>
+                       {/* Screen */}
+                       <div className="w-full h-full bg-white rounded-[2.2rem] overflow-hidden relative">
+                          <iframe 
+                            src={template_url}
+                            className="w-full h-full border-0"
+                            title={template.template_name}
+                            loading="lazy"
+                          />
+                       </div>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleTemplateSelect(template)}
+                      className="mt-8 px-8 py-3 bg-violet-600 text-white rounded-xl font-bold shadow-lg hover:bg-violet-700 transition-colors"
+                    >
+                      Select {template.template_name}
+                    </motion.button>
                   </div>
-                  <Link href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/wedding/${id}`} target="_blank">
-                     <motion.button
-                       whileHover={{ scale: 1.05 }}
-                       whileTap={{ scale: 0.95 }}
-                       className="mt-8 px-8 py-3 bg-violet-600 text-white rounded-xl font-bold shadow-lg hover:bg-violet-700 transition-colors"
-                     >
-                       Select Template {id}
-                     </motion.button>
-                  </Link>
-                </div>
-             ))}
+                );
+              })
+            )}
           </div>
         </div>
       </div>

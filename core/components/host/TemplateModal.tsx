@@ -34,11 +34,12 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
   invitationDetails,
   onSelectTemplate
 }) => {
+
   const [category, setCategory] = useState<string>('All');
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const { setSelectedTemplate } = useHostStore();
-  
+
   useEffect(() => {
     if (isOpen) {
       const fetchTemplates = async () => {
@@ -81,11 +82,12 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
   });
 
   const handleTemplateSelect = (template: Template) => {
+    
     setSelectedTemplate(template);
     if (onSelectTemplate) {
       onSelectTemplate(template);
     }
-    onClose();
+    // onClose();
   };
 
   return (

@@ -177,6 +177,7 @@ function HostDashboardContent({
   
   
   const handleTemplateSelect = async (template: any) => {
+    console.log("selected TEmplate",template)
     if (!currentInvitationId) return;
     
     try {

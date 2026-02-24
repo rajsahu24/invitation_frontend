@@ -64,6 +64,9 @@ export interface Template {
   template_name: string;
   template_type: string;
   thumbnail: string;
+  previewUrl?: string; // Adding for consistency with frontend formatting
+  template_sections?: any; // Added for completeness if needed
+  template_image?: string; // Match what comes from backend sometimes
 }
 
 export interface HostInvitation {
@@ -103,7 +106,7 @@ interface HostState {
 }
 
 export const useHostStore = create<HostState>()(
-  
+
   persist(
     (set) => ({
       user: null,
@@ -136,7 +139,7 @@ export const useHostStore = create<HostState>()(
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
-          set({ user: null, currentInvitationId: null });
+          set({ user: null, currentInvitationId: null, selectedTemplate: null });
         }
       },
 
@@ -145,7 +148,10 @@ export const useHostStore = create<HostState>()(
         currentInvitationId: invitation.id
       })),
 
-      setCurrentInvitation: (id) => set({ currentInvitationId: id }),
+      setCurrentInvitation: (id) => set((state) => ({
+        currentInvitationId: id,
+        selectedTemplate: state.currentInvitationId !== id ? null : state.selectedTemplate
+      })),
 
       addEventToInvitation: (invitationId, event) => set((state) => ({
         invitations: state.invitations.map((inv) =>

@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useHostStore } from '@/lib/store';
 import { ExternalLink, Sparkles, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 
 interface Template {
@@ -81,8 +83,11 @@ const PhoneMockup = ({ template, isVisible }: { template: Template; isVisible: b
 };
 
 function Templates() {
+  const router = useRouter();
+  const { user } = useHostStore();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -98,6 +103,52 @@ function Templates() {
     };
     fetchTemplates();
   }, []);
+
+  const handleTemplateClick = async (template: Template) => {
+    if (!user) {
+      // Store pending invitation and redirect to login
+      localStorage.setItem('pending_invitation', JSON.stringify({
+        id: template.id,
+        template_type: template.template_type,
+        template_name: template.template_name
+      }));
+      router.push('/login');
+      return;
+    }
+
+    // Direct creation if logged in
+    try {
+      console.log("{Hekkosdkfoasdfkjslkfjlkj")
+      const now = new Date();
+      const invitationTitle = now.toLocaleDateString('en-GB', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric' 
+      }) + ' ' + now.toLocaleTimeString('en-GB', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+       console.log("formData.......",template)
+      const formData = new FormData();
+      formData.append('invitation_title', invitationTitle);
+      formData.append('invitation_type', template.template_type.toLowerCase());
+      formData.append('invitation_template_id', template.id);
+      formData.append('metadata', JSON.stringify({}));
+     
+      const response = await fetch(`/api/invitations`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        router.push(`/host/${data.id}`);
+      }
+    } catch (error) {
+      console.error('Failed to create invitation:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -148,24 +199,28 @@ function Templates() {
         </div>
 
         {/* Infinite Marquee Slider */}
-        <div className="relative flex overflow-hidden group">
+        <div 
+          className="relative flex overflow-hidden group"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           <motion.div
-            animate={{ x: ["0%", "-50%"] }}
+            animate={isPaused ? { x: undefined } : { x: ["0%", "-50%"] }}
             transition={{
               x: {
                 repeat: Infinity,
                 repeatType: "loop",
-                duration: 40, // Slow motion: 40 seconds per loop
+                duration: 40,
                 ease: "linear",
               },
             }}
-            className="flex gap-8 hover:[animation-play-state:paused]"
-            onMouseEnter={() => {}} // Could add pause logic here if CSS hover doesn't work well
+            className="flex gap-8"
           >
             {duplicatedTemplates.map((template, idx) => (
               <div
                 key={`${template.id}-${idx}`}
-                className="flex-shrink-0 w-[150px] md:w-[200px]"
+                className="flex-shrink-0 w-[150px] md:w-[200px] cursor-pointer"
+                onClick={() => handleTemplateClick(template)}
               >
                 <div className="flex flex-col items-center">
                   <PhoneMockup 
