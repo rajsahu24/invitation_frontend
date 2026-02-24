@@ -342,18 +342,61 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
     const entry = repeatedEntries[index];
     const { id: _, ...updateData } = entry;
 
+    // Find if there's a new image for this specific entry
+    const fieldWithImage = section.schema.fields.find(f => f.type === 'image' && imageFiles[`${f.key}_${index}`]);
+    const imageFile = fieldWithImage ? imageFiles[`${fieldWithImage.key}_${index}`] : null;
+
     try {
-      const response = await fetch(
-        `/api/invitation-data/patch_repeated_entry/invitation/${section.invitation_id}/template_section/${section.section_id}/nano_id/${id}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        },
-      );
+      let response;
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(updateData));
+        formData.append('image', imageFile);
+        formData.append('image_field_key', fieldWithImage!.key);
+
+        response = await fetch(
+          `/api/invitation-data/patch_repeated_entry/invitation/${section.invitation_id}/template_section/${section.section_id}/nano_id/${id}`,
+          {
+            method: "PATCH",
+            credentials: "include",
+            body: formData,
+          },
+        );
+      } else {
+        response = await fetch(
+          `/api/invitation-data/patch_repeated_entry/invitation/${section.invitation_id}/template_section/${section.section_id}/nano_id/${id}`,
+          {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updateData),
+          },
+        );
+      }
+
       if (!response.ok) throw new Error("Failed to update entry");
+      
+      // Cleanup image file for this entry after successful upload
+      if (imageFile && fieldWithImage) {
+        const compositeKey = `${fieldWithImage.key}_${index}`;
+        setImageFiles(prev => {
+          const newFiles = { ...prev };
+          delete newFiles[compositeKey];
+          return newFiles;
+        });
+        setImagePreviews(prev => {
+          const newPreviews = { ...prev };
+          if (newPreviews[compositeKey]?.startsWith('blob:')) {
+            URL.revokeObjectURL(newPreviews[compositeKey]);
+          }
+          delete newPreviews[compositeKey];
+          return newPreviews;
+        });
+      }
+
       setEditingIndex(null);
+      // Refresh data to get the new image URL from backend
+      triggerRealTimeUpdate({ metadata: repeatedEntries, section_type: section.section_type });
     } catch (err) {
       alert("Failed to update entry. Please try again.");
     }

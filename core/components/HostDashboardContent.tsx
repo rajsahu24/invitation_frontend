@@ -66,6 +66,32 @@ function HostDashboardContent({
   const [newGuest, setNewGuest] = useState({ name: "", email: "", phone: "" });
   const [guestFile, setGuestFile] = useState<File | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [localSections, setLocalSections] = useState<TemplateSection[]>(templateSection || []);
+
+  const fetchTemplateSections = async () => {
+    if (!currentInvitationId) return;
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/template-sections/invitation/${currentInvitationId}`, {
+        cache: 'no-store'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setLocalSections(data);
+        
+        // If the current active tab is no longer available in the new sections,
+        // switch back to the first available section
+        if (data.length > 0 && !data.find((s: TemplateSection) => s.section_type === activeTab)) {
+           const firstSection = data.sort((a: TemplateSection, b: TemplateSection) => a.display_order - b.display_order)
+                                     .find((s: TemplateSection) => s.is_active);
+           if (firstSection) {
+             setActiveTab(firstSection.section_type);
+           }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch template sections:', error);
+    }
+  };
   
   // Sync store with invitationId from URL
   useEffect(() => {
@@ -196,6 +222,8 @@ function HostDashboardContent({
         const updatedInvitation = await response.json();
         setInvitationDetails(updatedInvitation);
         console.log('Template updated successfully in backend');
+        // Refresh sections to match new template
+        await fetchTemplateSections();
       } else {
         console.error('Failed to update template in backend');
       }
@@ -278,8 +306,8 @@ function HostDashboardContent({
     
     ];
     
-    if (templateSection && Array.isArray(templateSection)) {
-      templateSection
+    if (localSections && Array.isArray(localSections)) {
+      localSections
         .filter(section => section.is_active )
         .sort((a, b) => a.display_order - b.display_order)
         .forEach((section) => {
@@ -294,7 +322,7 @@ function HostDashboardContent({
     
     
     return tabsList;
-  }, [templateSection]);
+  }, [localSections]);
     
   const Main = (
     <div className="bg-white rounded-3xl shadow-xl border border-white/20 overflow-hidden flex flex-col min-h-[600px]">
@@ -324,7 +352,7 @@ function HostDashboardContent({
 
         <div className="p-6 overflow-y-auto flex-1 h-full">
 
-             {templateSection && templateSection.map((section) => {
+             {localSections && localSections.map((section) => {
                 if (activeTab === section.section_type && invitationDetails) {
                   if (section.section_type === "image_section") {
                     return (

@@ -87,7 +87,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
     if (onSelectTemplate) {
       onSelectTemplate(template);
     }
-    // onClose();
+    onClose();
   };
 
   return (
