@@ -68,7 +68,7 @@ export default function Navigation() {
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Inviteera
             </span> */}
-            <Image width={300} height={400}  src="https://res.cloudinary.com/dwbed0m72/image/upload/v1772103347/homelogo_fihokl.svg" alt="home logo" />
+            <Image width={300} height={400} className="h-40 -ml-8 sm:ml-auto  lg:h-52    w-auto"  src="/homelogo.svg" alt="home logo" />
           </Link>
 
           {/* Desktop Navigation */}
