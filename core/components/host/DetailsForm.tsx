@@ -202,82 +202,197 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
     setIsLoading(true);
 
     try {
-      const method = hasExistingData ? "PATCH" : "POST";
-      const url =
-        method === "PATCH"
-          ? `/api/invitation-data/invitation/${section.invitation_id}/template_section/${section.section_id}`
-          : `/api/invitation-data`;
-
-      const dataToSave = section?.is_repeated ? repeatedEntries : data;
-      console.log("data to save", dataToSave);
-      
-      // Check if we have image files to upload
-      const hasImageFiles = Object.keys(imageFiles).length > 0;
-      
-      // Create FormData for multipart upload
-      const formData = new FormData();
-      
-      // Add basic fields for POST
-      if (method === "POST") {
-        formData.append('invitation_id', section.invitation_id);
-        formData.append('template_section_id', section.section_id);
-      }
-      
-      formData.append('is_repeated', String(section?.is_repeated || false));
-      
-      // Add data as JSON string (backend will parse it)
-      formData.append('data', JSON.stringify(dataToSave));
-      
-      // Add image files - use 'image' as field name (backend expects this)
-      // Also add the field key so backend knows which field this image belongs to
-      const imageEntries = Object.entries(imageFiles);
-      if (imageEntries.length > 0) {
-        // Get the first image file (backend only accepts single image)
-        const [fieldKey, file] = imageEntries[0];
-        if (file) {
-          formData.append('image', file);
-          formData.append('image_field_key', fieldKey);
-        }
-      }
-
-      const response = await fetch(url, {
-        method,
-        credentials: "include",
-        // Don't set Content-Type header - let browser set it with boundary for FormData
-        body: hasImageFiles ? formData : JSON.stringify(
-          method === "PATCH"
-            ? { data: dataToSave, is_repeated: section?.is_repeated || false }
-            : {
-                invitation_id: section.invitation_id,
-                template_section_id: section.section_id,
-                data: dataToSave,
-                is_repeated: section?.is_repeated || false,
-              }
-        ),
-        // Only set JSON header if no image files
-        ...(hasImageFiles ? {} : { headers: { "Content-Type": "application/json" } }),
-      });
-
-      if (!response.ok) throw new Error("Failed to save data");
-
-      // Clear image files after successful upload
-      setImageFiles({});
-      // Cleanup preview URLs
-      Object.values(imagePreviews).forEach(url => {
-        if (url.startsWith('blob:')) {
-          URL.revokeObjectURL(url);
-        }
-      });
-      setImagePreviews({});
-
+      // For repeated sections, process each entry individually
       if (section?.is_repeated) {
-        // Keep repeated entries, just update saved state
+        const updatedEntries = [...repeatedEntries];
+        
+        for (let index = 0; index < repeatedEntries.length; index++) {
+          const entry = repeatedEntries[index];
+          const hasImage = section.schema.fields.some(f => f.type === 'image' && imageFiles[`${f.key}_${index}`]);
+          
+          if (entry.id) {
+            // Update existing entry with its specific image
+            const { id: _, ...updateData } = entry;
+            
+            // Find image field for this entry
+            const imageField = section.schema.fields.find(f => f.type === 'image');
+            const compositeKey = imageField ? `${imageField.key}_${index}` : null;
+            const imageFile = compositeKey ? imageFiles[compositeKey] : null;
+            
+            let response;
+            if (imageFile) {
+              const formData = new FormData();
+              formData.append('data', JSON.stringify(updateData));
+              formData.append('image', imageFile);
+              formData.append('image_field_key', imageField!.key);
+              
+              response = await fetch(
+                `/api/invitation-data/patch_repeated_entry/invitation/${section.invitation_id}/template_section/${section.section_id}/nano_id/${entry.id}`,
+                {
+                  method: "PATCH",
+                  credentials: "include",
+                  body: formData,
+                },
+              );
+            } else {
+              response = await fetch(
+                `/api/invitation-data/patch_repeated_entry/invitation/${section.invitation_id}/template_section/${section.section_id}/nano_id/${entry.id}`,
+                {
+                  method: "PATCH",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(updateData),
+                },
+              );
+            }
+            
+            if (!response.ok) throw new Error(`Failed to update entry ${index}`);
+            
+            // Clear the image file for this entry after successful upload
+            if (imageFile && compositeKey) {
+              setImageFiles(prev => {
+                const newFiles = { ...prev };
+                delete newFiles[compositeKey];
+                return newFiles;
+              });
+              setImagePreviews(prev => {
+                const newPreviews = { ...prev };
+                if (newPreviews[compositeKey]?.startsWith('blob:')) {
+                  URL.revokeObjectURL(newPreviews[compositeKey]);
+                }
+                delete newPreviews[compositeKey];
+                return newPreviews;
+              });
+            }
+          } else {
+            // Create new entry
+            const { id: _, ...createData } = entry;
+            
+            // Find image field for this entry
+            const imageField = section.schema.fields.find(f => f.type === 'image');
+            const compositeKey = imageField ? `${imageField.key}_${index}` : null;
+            const imageFile = compositeKey ? imageFiles[compositeKey] : null;
+            
+            const formData = new FormData();
+            formData.append('invitation_id', section.invitation_id);
+            formData.append('template_section_id', section.section_id);
+            formData.append('is_repeated', 'true');
+            formData.append('data', JSON.stringify(createData));
+            
+            if (imageFile) {
+              formData.append('image', imageFile);
+              formData.append('image_field_key', imageField!.key);
+            }
+            
+            const response = await fetch('/api/invitation-data', {
+              method: "POST",
+              credentials: "include",
+              body: formData,
+            });
+            
+            if (!response.ok) throw new Error(`Failed to create entry ${index}`);
+            
+            const result = await response.json();
+            
+            // Update the entry with the returned ID and image URL
+            if (result.data) {
+              updatedEntries[index] = { ...entry, ...result.data };
+            }
+            
+            // Clear the image file for this entry after successful upload
+            if (imageFile && compositeKey) {
+              setImageFiles(prev => {
+                const newFiles = { ...prev };
+                delete newFiles[compositeKey];
+                return newFiles;
+              });
+              setImagePreviews(prev => {
+                const newPreviews = { ...prev };
+                if (newPreviews[compositeKey]?.startsWith('blob:')) {
+                  URL.revokeObjectURL(newPreviews[compositeKey]);
+                }
+                delete newPreviews[compositeKey];
+                return newPreviews;
+              });
+            }
+          }
+        }
+        
+        setRepeatedEntries(updatedEntries);
+        setHasExistingData(true);
+        setIsDirty(false);
+        triggerRealTimeUpdate({ metadata: updatedEntries, section_type: section.section_type });
       } else {
+        // Non-repeated section - existing logic
+        const method = hasExistingData ? "PATCH" : "POST";
+        const url =
+          method === "PATCH"
+            ? `/api/invitation-data/invitation/${section.invitation_id}/template_section/${section.section_id}`
+            : `/api/invitation-data`;
+
+        const dataToSave = data;
+        console.log("data to save", dataToSave);
+        
+        // Check if we have image files to upload
+        const hasImageFiles = Object.keys(imageFiles).length > 0;
+        
+        // Create FormData for multipart upload
+        const formData = new FormData();
+        
+        // Add basic fields for POST
+        if (method === "POST") {
+          formData.append('invitation_id', section.invitation_id);
+          formData.append('template_section_id', section.section_id);
+        }
+        
+        formData.append('is_repeated', String(false));
+        
+        // Add data as JSON string (backend will parse it)
+        formData.append('data', JSON.stringify(dataToSave));
+        
+        // Add image files - use 'image' as field name (backend expects this)
+        const imageEntries = Object.entries(imageFiles);
+        if (imageEntries.length > 0) {
+          const [fieldKey, file] = imageEntries[0];
+          if (file) {
+            formData.append('image', file);
+            formData.append('image_field_key', fieldKey);
+          }
+        }
+
+        const response = await fetch(url, {
+          method,
+          credentials: "include",
+          body: hasImageFiles ? formData : JSON.stringify(
+            method === "PATCH"
+              ? { data: dataToSave, is_repeated: false }
+              : {
+                  invitation_id: section.invitation_id,
+                  template_section_id: section.section_id,
+                  data: dataToSave,
+                  is_repeated: false,
+                }
+          ),
+          ...(hasImageFiles ? {} : { headers: { "Content-Type": "application/json" } }),
+        });
+
+        if (!response.ok) throw new Error("Failed to save data");
+
+        // Clear image files after successful upload
+        setImageFiles({});
+        // Cleanup preview URLs
+        Object.values(imagePreviews).forEach(url => {
+          if (url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+          }
+        });
+        setImagePreviews({});
+
         setSavedData(data);
+        setHasExistingData(true);
+        setIsDirty(false);
+        triggerRealTimeUpdate({ metadata: {}, section_type: section.section_type });
       }
-      setHasExistingData(true);
-      setIsDirty(false);
-      triggerRealTimeUpdate({ metadata: {}, section_type: section.section_type });
     } catch (err) {
       alert("Failed to save changes. Please try again.");
     } finally {

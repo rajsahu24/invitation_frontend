@@ -118,7 +118,7 @@ function Templates() {
 
     // Direct creation if logged in
     try {
-      console.log("{Hekkosdkfoasdfkjslkfjlkj")
+      
       const now = new Date();
       const invitationTitle = now.toLocaleDateString('en-GB', { 
         day: '2-digit', 
