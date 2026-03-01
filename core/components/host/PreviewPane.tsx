@@ -25,7 +25,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [templateUrl, setTemplateUrl] = useState<string>('');
   const { selectedTemplate } = useHostStore();
-  const button_url =  `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`
+  const button_url =  `https://inviteera.com/${public_id}`
   console.log(selectedTemplate  )
   useEffect(() => {
     console.log('PreviewPane useEffect triggered:', { public_id, selectedTemplate, refreshKey });
