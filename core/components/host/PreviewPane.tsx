@@ -26,8 +26,14 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [templateUrl, setTemplateUrl] = useState<string>('');
   const { selectedTemplate } = useHostStore();
-  const button_url =  `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${slug}`
+  let button_url
+  if(slug!==undefined){
+    button_url =  `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${slug}`
+  }else{
+    button_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/public/${public_id}`
+  }
   console.log(selectedTemplate  )
+  
   useEffect(() => {
     console.log('PreviewPane useEffect triggered:', { public_id, selectedTemplate, refreshKey });
     console.log(selectedTemplate) 
