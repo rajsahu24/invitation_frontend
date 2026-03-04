@@ -8,13 +8,24 @@ import CTA from '@/core/components/landing/CTA';
 import Footer from '@/core/components/landing/Footer';
 import ScrollToTop from '@/core/components/ui/ScrollToTop';
 import FAQSection from '@/core/components/landing/FAQSection';
+import { Template } from '@/core/dataModels/templateFieldDataModel';
 
-export default function LandingPage() {
+export default async function  LandingPage() {
+  let template_data = [];
+  
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
+    if (!response.ok) throw new Error('Failed to fetch templates');
+    template_data = await response.json();
+  } catch (error) {
+    console.error('Error fetching templates:', error);
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <Navigation />
       <Hero />
-      <Templates />
+      <Templates template_data={template_data} />
       <Features />
       <HowItWorks />
       <Testimonials />

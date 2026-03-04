@@ -65,3 +65,11 @@ export interface TemplateField {
   required: boolean;
   placeholder?: string;
 }
+
+
+export interface Template {
+  id: string;
+  template_type: string;
+  template_name: string;
+  template_image: string;
+}

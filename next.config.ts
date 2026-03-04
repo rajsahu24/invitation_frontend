@@ -21,8 +21,12 @@ const nextConfig: NextConfig = {
           destination: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/assets/:path*`,
         },
         {
-          source: "/:public_id",
-          destination: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/:public_id`,
+          source: "/:slug",
+          destination: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/:slug`,
+        },
+        {
+          source: "/public/:public_id",
+          destination: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/public/:public_id`,
         },
       ],
     };

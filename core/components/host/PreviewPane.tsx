@@ -19,13 +19,14 @@ interface PreviewPaneProps {
   refreshKey?: number;
   invitation_id:string;
   activeSection?: string;
+  slug?: string;
 }
 
-const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey, invitation_id, activeSection }) => {
+const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realTimeData, public_id, refreshKey, invitation_id, activeSection, slug }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [templateUrl, setTemplateUrl] = useState<string>('');
   const { selectedTemplate } = useHostStore();
-  const button_url =  `https://inviteera.com/${public_id}`
+  const button_url =  `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${slug}`
   console.log(selectedTemplate  )
   useEffect(() => {
     console.log('PreviewPane useEffect triggered:', { public_id, selectedTemplate, refreshKey });
@@ -40,7 +41,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
            console.log(`/preview/${selectedTemplate.template_type}/${selectedTemplate.template_name}/${invitation_id}`)
            setTemplateUrl(constructedUrl);
         } else if (public_id) {
-           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`;
+           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/public/${public_id}`;
            console.log('Using public_id URL:', constructedUrl);
            setTemplateUrl(constructedUrl);
         }

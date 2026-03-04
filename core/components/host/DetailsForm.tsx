@@ -13,16 +13,20 @@ interface RealTimeData {
   invitation_type?: string;
   metadata?: Record<string, any>;
   section_type?: string;
+  slug?: string;
+  slugError?: string | null;
 }
 
 interface DetailsFormProps {
   onRealTimeUpdate?: (data: RealTimeData) => void;
   section?: TemplateSection;
+  template_key?: string;
 }
 
 const DetailsForm: React.FC<DetailsFormProps> = ({
   onRealTimeUpdate,
   section,
+  template_key
 }) => {
   console.log("section in details form", section)
   const [data, setdata] = useState<Record<string, any>>({});
@@ -38,9 +42,71 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
   // State for image file handling
   const [imageFiles, setImageFiles] = useState<Record<string, File | null>>({});
   const [imagePreviews, setImagePreviews] = useState<Record<string, string>>({});
+  const [slugError, setSlugError] = useState<string | null>(null);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const slugCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
   const DEBOUNCE_DELAY = 150;
+  
+  // Generate slug from field values
+  const generateSlug = useCallback((fieldData: Record<string, any>) => {
+    if (section?.display_order!==1 || !section?.schema?.fields) return undefined;
+    
+    const slugify = (text: string) => 
+      text.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    
+    const sortedFields = [...section.schema.fields].sort((a, b) => a.order - b.order);
+    
+    if ( template_key==='wedding') {
+      const field1 = sortedFields[0]?.key;
+      const field2 = sortedFields[1]?.key;
+      const value1 = field1 ? fieldData[field1] || '' : '';
+      const value2 = field2 ? fieldData[field2] || '' : '';
+      if (value1 && value2) {
+        return slugify(`${value1}-weds-${value2}`);
+      }
+    } else{
+      const field1 = sortedFields[0]?.key;
+      const value1 = field1 ? fieldData[field1] || '' : '';
+      if (value1) {
+        return slugify(value1);
+      }
+    }
+    return undefined;
+  }, [section?.section_type, section?.schema?.fields, section?.section_type]);
+  
+  // Check slug uniqueness
+  const checkSlugUniqueness = useCallback(async (slug: string) => {
+    if (!slug || !section?.invitation_id) {
+      console.log('[SlugCheck] Early return: slug or invitation_id missing', { slug, invitation_id: section?.invitation_id });
+      return true;
+    }
+    
+    try {
+      const url = `${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/invitation-data/check-slug?slug=${encodeURIComponent(slug)}&id=${section.invitation_id}`;
+      console.log('[SlugCheck] Making request to:', url);
+      
+      const response = await fetch(url, {
+        credentials: 'include'
+      });
+      
+      console.log('[SlugCheck] Response status:', response.status, 'ok:', response.ok);
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('[SlugCheck] Full response result:', JSON.stringify(result));
+        console.log('[SlugCheck] result.isUnique:', result.isUnique, 'type:', typeof result.isUnique);
+        return result.isUnique;
+      } else {
+        console.error('[SlugCheck] Non-OK response, status:', response.status);
+      }
+    } catch (error) {
+      console.error('[SlugCheck] Fetch error:', error);
+    }
+    return true;
+  }, [section?.invitation_id]);
+  
+  
   const triggerRealTimeUpdate = useCallback(
     (data: RealTimeData) => {
       if (!onRealTimeUpdate) return;
@@ -56,6 +122,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      if (slugCheckTimerRef.current) clearTimeout(slugCheckTimerRef.current);
     };
   }, []);
 
@@ -151,7 +218,13 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
           }
 
           setHasExistingData(true);
-          triggerRealTimeUpdate({ metadata: fetchedData, section_type: section.section_type });
+          const slug = generateSlug(fetchedData);
+          triggerRealTimeUpdate({ 
+            metadata: fetchedData, 
+            section_type: section.section_type,
+            ...(slug && { slug }),
+            slugError: null
+          });
         } else {
           setdata({});
           setSavedData({});
@@ -209,7 +282,21 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
           : `/api/invitation-data`;
 
       const dataToSave = section?.is_repeated ? repeatedEntries : data;
-      console.log("data to save", dataToSave);
+      
+      
+      // Generate slug for hero_section
+      const slug = section?.display_order === 1 ? generateSlug(dataToSave) : undefined;
+      
+      // Check slug uniqueness before saving
+      if (slug) {
+        const isUnique = await checkSlugUniqueness(slug);
+        console.log('testeiireoiowori',isUnique)
+        if (!isUnique) {
+          alert('This slug is already taken. Please use different names.');
+          setIsLoading(false);
+          return;
+        }
+      }
       
       // Check if we have image files to upload
       const hasImageFiles = Object.keys(imageFiles).length > 0;
@@ -227,6 +314,11 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
       
       // Add data as JSON string (backend will parse it)
       formData.append('data', JSON.stringify(dataToSave));
+      
+      // Add slug if it exists
+      if (slug) {
+        formData.append('slug', slug);
+      }
       
       // Add image files - use 'image' as field name (backend expects this)
       // Also add the field key so backend knows which field this image belongs to
@@ -246,12 +338,17 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
         // Don't set Content-Type header - let browser set it with boundary for FormData
         body: hasImageFiles ? formData : JSON.stringify(
           method === "PATCH"
-            ? { data: dataToSave, is_repeated: section?.is_repeated || false }
+            ? { 
+                data: dataToSave, 
+                is_repeated: section?.is_repeated || false,
+                ...(slug && { slug })
+              }
             : {
                 invitation_id: section.invitation_id,
                 template_section_id: section.section_id,
                 data: dataToSave,
                 is_repeated: section?.is_repeated || false,
+                ...(slug && { slug })
               }
         ),
         // Only set JSON header if no image files
@@ -290,7 +387,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
     value: string,
     index?: number,
   ) => {
-    console.log("Helloa")
+
     if (section?.is_repeated && index !== undefined) {
       const newEntries = [...repeatedEntries];
       newEntries[index] = { ...newEntries[index], [field]: value };
@@ -302,7 +399,25 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
       setdata(newdata);
       setIsDirty(true);
       if(!section) return
-      triggerRealTimeUpdate({ metadata: newdata, section_type: section.section_type });
+      
+      const slug = generateSlug(newdata);
+      
+      // Check slug uniqueness with debounce
+      if (slug && section?.display_order === 1) {
+        if (slugCheckTimerRef.current) clearTimeout(slugCheckTimerRef.current);
+        slugCheckTimerRef.current = setTimeout(async () => {
+          const isUnique = await checkSlugUniqueness(slug);
+          console.log("uniqe slug......",isUnique)
+          setSlugError(isUnique ? null : 'This slug is already taken. Please use different names.');
+        }, 500);
+      }
+      
+      triggerRealTimeUpdate({ 
+        metadata: newdata, 
+        section_type: section.section_type,
+        ...(slug && { slug }),
+        slugError
+      });
     }
   };
 
@@ -629,11 +744,16 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
       </div>
 
       <div className="pt-6 border-t border-gray-100 mt-auto">
+        {slugError && section?.display_order === 1 && (
+          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+            {slugError}
+          </div>
+        )}
         <button
           onClick={handleUpdateInvitation}
-          disabled={!isDirty || isLoading}
+          disabled={!isDirty || isLoading || !!slugError}
           className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
-            isDirty && !isLoading
+            isDirty && !isLoading && !slugError
               ? "bg-violet-600 text-white hover:bg-violet-700 shadow-lg hover:shadow-xl"
               : "bg-gray-100 text-gray-400 cursor-not-allowed"
           }`}

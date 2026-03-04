@@ -106,7 +106,7 @@ interface HostState {
 }
 
 export const useHostStore = create<HostState>()(
-
+  
   persist(
     (set) => ({
       user: null,
@@ -147,7 +147,7 @@ export const useHostStore = create<HostState>()(
         invitations: [...state.invitations, { ...invitation, events: [] }],
         currentInvitationId: invitation.id
       })),
-
+      
       setCurrentInvitation: (id) => set((state) => ({
         currentInvitationId: id,
         selectedTemplate: state.currentInvitationId !== id ? null : state.selectedTemplate

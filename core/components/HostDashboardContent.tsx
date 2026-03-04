@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Sparkles, ArrowLeft, Search, Bell, Calendar, Plus, Edit, Image as ImageIcon, Layout, Users, BarChart3, Heart, Trash2 } from "lucide-react";
+import { Sparkles, ArrowLeft, Search, Bell, Calendar, Plus, Edit2, Edit, Image as ImageIcon, Layout, Users, BarChart3, Heart, Trash2, Link2, Copy, Check, X } from "lucide-react";
 import { useHostStore } from "../../lib/store";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,7 +12,6 @@ import GuestList from "./host/GuestList";
 import DetailsForm from "./host/DetailsForm";
 import TemplateModal from "./host/TemplateModal";
 import PreviewPane from "./host/PreviewPane";
-import EventForm from "./host/EventForm";
 import PhotoGallery from "./host/PhotoGallery";
 import { TemplateSection } from "../dataModels/templateFieldDataModel";
 
@@ -37,9 +36,11 @@ interface Invitation {
   template_url?: string;
   quick_action: Record<string, any>;
   metadata: Record<string, any>;
+  slug?:string
   public_id:string;
   created_at: string;
   updated_at: string;
+  template: any;
 }
 
 
@@ -55,11 +56,25 @@ function HostDashboardContent({
   invitation?: Invitation;
   invitationId?: string;
 }) {
-  const { currentInvitationId, setCurrentInvitation, selectedTemplate } = useHostStore();
-  
+  const { currentInvitationId, setCurrentInvitation, selectedTemplate } = useHostStore(); 
+  console.log(invitation)
+
   const [invitationDetails, setInvitationDetails] = useState<Invitation | undefined>(invitation);
   
   // Set default active tab to 'invitation_details'
+    // Real-time preview data state
+  const [realTimePreviewData, setRealTimePreviewData] = useState<{
+    invitationId?: string;
+    invitation_title?: string;
+    invitation_message?: string;
+    invitation_tag_line?: string;
+    invitation_type?: string;
+    metadata?: Record<string, any>;
+    events?: any[];
+    section_type?: string;
+    slug?:string
+    slugError?: string | null;
+  } | null>(null);
   const [activeTab, setActiveTab] = useState('hero_section');
   const [showAddGuest, setShowAddGuest] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -67,7 +82,28 @@ function HostDashboardContent({
   const [guestFile, setGuestFile] = useState<File | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [localSections, setLocalSections] = useState<TemplateSection[]>(templateSection || []);
-
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [invitationSlug, SetInvitationSlug] = useState<string | undefined>(undefined);
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
+  const [editedSlug, setEditedSlug] = useState('');
+  const [slugUpdateLoading, setSlugUpdateLoading] = useState(false);
+  const [slugUpdateError, setSlugUpdateError] = useState<string | null>(null);
+  const [slugUpdateSuccess, setSlugUpdateSuccess] = useState(false);
+  
+  // Sync invitationSlug: priority to invitationDetails.slug (user updated), then realTimePreviewData.slug (from form)
+  useEffect(() => {
+    // If user has updated slug in invitationDetails, use that
+    if (invitationDetails?.slug) {
+      SetInvitationSlug(invitationDetails.slug);
+    } 
+    // Otherwise use the slug from realTimePreviewData (generated from form details)
+    else if (realTimePreviewData?.slug) {
+      SetInvitationSlug(realTimePreviewData.slug);
+    }
+  }, [invitationDetails?.slug, realTimePreviewData?.slug]);
+  
+  const template_key =  invitation?.template?.template_key
+  console.log(invitationDetails)
   const fetchTemplateSections = async () => {
     if (!currentInvitationId) return;
     try {
@@ -76,6 +112,7 @@ function HostDashboardContent({
       });
       if (response.ok) {
         const data = await response.json();
+        
         setLocalSections(data);
         
         // If the current active tab is no longer available in the new sections,
@@ -100,18 +137,8 @@ function HostDashboardContent({
     }
   }, [invitationId, currentInvitationId, setCurrentInvitation]);
 
-  // Real-time preview data state
-  const [realTimePreviewData, setRealTimePreviewData] = useState<{
-    invitationId?: string;
-    invitation_title?: string;
-    invitation_message?: string;
-    invitation_tag_line?: string;
-    invitation_type?: string;
-    metadata?: Record<string, any>;
-    events?: any[];
-    section_type?: string;
-  } | null>(null);
-  
+
+  console.log("realTimePreviewData",realTimePreviewData)
   // Fetch invitation details if not provided by prop
   const fetchInvitationDetails = async () => {
     if (!currentInvitationId || invitationDetails) return;
@@ -199,6 +226,71 @@ function HostDashboardContent({
   };
 
   const invitation_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${invitationDetails?.invitation_type}/${invitationDetails?.invitation_template_id}/${currentInvitationId}`;
+  const invitation_share_url = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${invitationSlug}`
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(invitation_share_url);
+      setCopiedUrl(true);
+      setTimeout(() => setCopiedUrl(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+    }
+  };
+
+    const handleSaveSlug = async () => {
+    if (!editedSlug.trim() || !currentInvitationId) return;
+    
+    setSlugUpdateLoading(true);
+    setSlugUpdateError(null);
+    
+    try {
+      const response = await fetch(
+        `/api/invitations/update_slug/invitation/${currentInvitationId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ slug: editedSlug.trim() }),
+        }
+      );
+      
+      if (response.ok) {
+        const result = await response.json();
+        const newSlug = result.slug || editedSlug.trim();
+        SetInvitationSlug(newSlug);
+        setInvitationDetails(prev => prev ? { ...prev, slug: newSlug } : prev);
+        setRealTimePreviewData(prev => prev ? { ...prev, slug: newSlug } : null);
+        setIsEditingSlug(false);
+        setSlugUpdateSuccess(true);
+        setTimeout(() => setSlugUpdateSuccess(false), 2000);
+      } else {
+        const errorData = await response.json();
+        setSlugUpdateError(errorData.message || 'Failed to update slug');
+      }
+    } catch (error) {
+      console.error('Failed to update slug:', error);
+      setSlugUpdateError('Failed to update slug. Please try again.');
+    } finally {
+      setSlugUpdateLoading(false);
+    }
+  };
+
+  const handleStartEditSlug = () => {
+    setEditedSlug(invitationSlug || '');
+    setIsEditingSlug(true);
+    setSlugUpdateError(null);
+    setSlugUpdateSuccess(false);
+  };
+
+  const handleCancelEditSlug = () => {
+    setIsEditingSlug(false);
+    setEditedSlug('');
+    setSlugUpdateError(null);
+  };
+
+
   
   
   
@@ -239,6 +331,8 @@ function HostDashboardContent({
     invitation_type?: string;
     metadata?: Record<string, any>;
     section_type?: string;
+    slug?: string;
+    slugError?: string | null;
   }) => {
     
     setRealTimePreviewData(data);
@@ -248,21 +342,21 @@ function HostDashboardContent({
 
   const Header = (
     <div className="bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm">
-        <div className="max-w-[1920px] mx-auto px-6 py-4">
+        <div className="max-w-[1920px] mx-auto px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link 
                 href={'/host'}
                 className="p-2 hover:bg-violet-100 rounded-xl text-violet-600 transition-colors"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">Invitation Editor</h1>
-                <p className="text-xs text-gray-600">{invitationDetails?.invitation_title || "My Event"}</p>
+                <h1 className="text-base sm:text-lg font-bold text-gray-900">Invitation Editor</h1>
+                <p className="text-xs text-gray-600 truncate max-w-[150px] sm:max-w-none">{invitationDetails?.invitation_title || "My Event"}</p>
               </div>
             </div>
           </div>
@@ -292,11 +386,111 @@ function HostDashboardContent({
         </button>
       </div>
 
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Link2 className="w-4 h-4 text-violet-600" />
+          <h3 className="text-sm font-bold text-gray-900">Invitation URL</h3>
+        </div>
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-2">
+            {isEditingSlug ? (
+              <>
+                <input
+                  type="text"
+                  value={editedSlug}
+                  onChange={(e) => setEditedSlug(e.target.value)}
+                  className="flex-1 px-3 py-2 text-xs sm:text-sm border border-violet-300 rounded-lg bg-violet-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  placeholder="Enter custom URL slug"
+                />
+                <button
+                  onClick={handleSaveSlug}
+                  disabled={slugUpdateLoading}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all shadow-sm hover:shadow-md whitespace-nowrap disabled:opacity-50"
+                >
+                  {slugUpdateLoading ? (
+                    <span className="text-sm font-medium">Saving...</span>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span className="text-sm font-medium">Save</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={handleCancelEditSlug}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all shadow-sm whitespace-nowrap"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  value={invitation_share_url}
+                  readOnly
+                  className="flex-1 px-3 py-2 text-xs sm:text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 truncate"
+                />
+                <button
+                  onClick={handleCopyUrl}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all shadow-sm hover:shadow-md whitespace-nowrap"
+                >
+                  {copiedUrl ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span className="text-sm font-medium">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span className="text-sm font-medium">Copy</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={handleStartEditSlug}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all shadow-sm whitespace-nowrap"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
+          {slugUpdateSuccess && (
+            <p className="text-xs text-green-600 flex items-center gap-1">
+              <Check className="w-3 h-3" />
+              URL updated successfully!
+            </p>
+          )}
+          {slugUpdateError && (
+            <p className="text-xs text-red-600 flex items-center gap-1">
+              <X className="w-3 h-3" />
+              {slugUpdateError}
+            </p>
+          )}
+         (
+            <div className="space-y-1">
+              <p className="text-xs text-green-600 flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                Building URL: /{invitation_share_url}
+              </p>
+              {realTimePreviewData?.slugError && (
+                <p className="text-xs text-red-600 flex items-center gap-1">
+                  <X className="w-3 h-3" />
+                  {realTimePreviewData.slugError}
+                </p>
+              )}
+            </div>
+          ) 
+          <p className="text-xs text-gray-500">Share this URL with your guests to view the invitation</p>
+        </div>
+      </div>
+
       <GuestList 
         guests={guests} 
         onAddGuest={() => setShowAddGuest(true)}
         invitation={invitationDetails}
-      />
+      />  
     </>
   );
 
@@ -325,7 +519,7 @@ function HostDashboardContent({
   }, [localSections]);
     
   const Main = (
-    <div className="bg-white rounded-3xl shadow-xl border border-white/20 overflow-hidden flex flex-col min-h-[600px]">
+    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-white/20 overflow-hidden flex flex-col min-h-[400px] sm:min-h-[600px]">
         
         <div className="relative border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
             <div className="flex overflow-x-auto custom-scrollbar-h scroll-smooth">
@@ -333,24 +527,25 @@ function HostDashboardContent({
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.label)}
-                        className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                        className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                         activeTab === tab.label
                             ? "text-violet-600 bg-white border-b-2 border-violet-600 shadow-sm"
                             : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
                         }`}
                     >
-                        <tab.icon className="w-4 h-4" />
-                        {tab.label.replace("_"," ").toUpperCase()}
+                        <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline">{tab.label.replace("_"," ").toUpperCase()}</span>
+                        <span className="sm:hidden">{tab.label.split("_")[0].toUpperCase()}</span>
                     </button>
                 ))}
             </div>
             
             {/* Scroll Indicator Gradients */}
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50/50 to-transparent pointer-events-none md:hidden" />
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50/50 to-transparent pointer-events-none md:hidden" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50/50 to-transparent pointer-events-none lg:hidden" />
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50/50 to-transparent pointer-events-none lg:hidden" />
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1 h-full">
+        <div className="p-3 sm:p-6 overflow-y-auto flex-1 h-full">
 
              {localSections && localSections.map((section) => {
                 if (activeTab === section.section_type && invitationDetails) {
@@ -366,7 +561,7 @@ function HostDashboardContent({
                   }
                   return (
                     <DetailsForm 
-                      key={section.section_id}
+                      template_key={template_key}
                       onRealTimeUpdate={handleRealTimeUpdate}
                       section={section}
                     />
@@ -381,14 +576,14 @@ function HostDashboardContent({
   );
   // console.log(realTimePreviewData)
 
-
+  const slug = isEditingSlug?editedSlug:realTimePreviewData?.slug
   return (
     <>
       <DashboardLayout 
         header={Header}
         sidebar={Sidebar}
         main={Main}
-        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} public_id={invitationDetails?.public_id} invitation_id={invitationDetails.id} refreshKey={refreshKey} activeSection={activeTab} />}
+        rightPanel={invitationDetails?.id&&<PreviewPane url={selectedTemplate ? selectedTemplate.thumbnail : invitation_url} isLoading={!invitationDetails} realTimeData={realTimePreviewData} public_id={invitationDetails?.public_id} invitation_id={invitationDetails.id} refreshKey={refreshKey} activeSection={activeTab} slug={slug} />}
       />
 
       {/* Modals */}
@@ -415,28 +610,28 @@ function HostDashboardContent({
                initial={{ scale: 0.9, opacity: 0 }}
                animate={{ scale: 1, opacity: 1 }}
                exit={{ scale: 0.9, opacity: 0 }}
-               className="bg-white rounded-3xl w-full max-w-md p-6"
+               className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-md p-4 sm:p-6 mx-4"
              >
-                <h2 className="text-xl font-bold mb-4 text-gray-900">Add Guest</h2>
-                <div className="space-y-4">
+                <h2 className="text-lg sm:text-xl font-bold mb-4 text-gray-900">Add Guest</h2>
+                <div className="space-y-3 sm:space-y-4">
                     <input 
                         type="text" 
                         placeholder="Name" 
-                        className="w-full p-3 border rounded-xl text-gray-900"
+                        className="w-full p-2.5 sm:p-3 text-sm sm:text-base border rounded-xl text-gray-900"
                         value={newGuest.name}
                         onChange={(e) => setNewGuest({...newGuest, name: e.target.value})}
                     />
                     <input 
                         type="email" 
                         placeholder="Email" 
-                        className="w-full p-3 border rounded-xl text-gray-900" 
+                        className="w-full p-2.5 sm:p-3 text-sm sm:text-base border rounded-xl text-gray-900" 
                         value={newGuest.email}
                         onChange={(e) => setNewGuest({...newGuest, email: e.target.value})}
                     />
                     <input 
                         type="tel" 
                         placeholder="Phone Number" 
-                        className="w-full p-3 border rounded-xl text-gray-900" 
+                        className="w-full p-2.5 sm:p-3 text-sm sm:text-base border rounded-xl text-gray-900" 
                         value={newGuest.phone}
                         onChange={(e) => setNewGuest({...newGuest, phone: e.target.value})}
                     />
@@ -453,11 +648,11 @@ function HostDashboardContent({
                     <input 
                         type="file" 
                         accept=".csv"
-                        className="w-full p-2 border rounded-xl text-sm"
+                        className="w-full p-2 border rounded-xl text-xs sm:text-sm"
                         onChange={(e) => setGuestFile(e.target.files?.[0] || null)}
                     />
 
-                    <div className="flex gap-2 pt-2">
+                    <div className="flex flex-col sm:flex-row gap-2 pt-2">
                         <button 
                             type="button"
                             onClick={(e) => {
@@ -466,14 +661,14 @@ function HostDashboardContent({
                                 console.log("Button clicked!");
                                 handleAddGuest();
                             }}
-                            className="flex-1 py-3 bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700"
+                            className="flex-1 py-2.5 sm:py-3 text-sm sm:text-base bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700"
                         >
                             Add Guest
                         </button>
                          <button 
                             type="button"
                             onClick={() => setShowAddGuest(false)}
-                            className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200"
+                            className="flex-1 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200"
                         >
                             Cancel
                         </button>

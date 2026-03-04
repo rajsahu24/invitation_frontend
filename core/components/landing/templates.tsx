@@ -6,13 +6,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useHostStore } from '@/lib/store';
 import { ExternalLink, Sparkles, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Template } from '@/core/dataModels/templateFieldDataModel';
 
-interface Template {
-  id: string;
-  template_type: string;
-  template_name: string;
-  template_image: string;
-}
+
 
 const PhoneMockup = ({ template, isVisible }: { template: Template; isVisible: boolean }) => {
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
@@ -82,27 +78,28 @@ const PhoneMockup = ({ template, isVisible }: { template: Template; isVisible: b
   );
 };
 
-function Templates() {
+interface TemplateDataProps{
+  template_data: Template[];
+}
+
+function Templates(template_data:TemplateDataProps) {
   const router = useRouter();
   const { user } = useHostStore();
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isPaused, setIsPaused] = useState(false);
 
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
-        const data = await response.json();
-        setTemplates(data || []);
-      } catch (error) {
-        console.error('Failed to fetch templates:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTemplates();
-  }, []);
+  const [isPaused, setIsPaused] = useState(false);
+  const constraintsRef = useRef<HTMLDivElement>(null);
+  const templates = template_data.template_data
+ 
+
+  if (!templates || templates.length === 0) {
+    return (
+      <section id="templates" className="py-24 bg-[#F8FAFC]">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-slate-500 text-lg">No templates available at the moment.</p>
+        </div>
+      </section>
+    );
+  }
 
   const handleTemplateClick = async (template: Template) => {
     if (!user) {
@@ -150,16 +147,16 @@ function Templates() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[600px] bg-slate-50">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 border-4 border-blue-200 rounded-full animate-pulse" />
-          <div className="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-[600px] bg-slate-50">
+  //       <div className="relative w-16 h-16">
+  //         <div className="absolute inset-0 border-4 border-blue-200 rounded-full animate-pulse" />
+  //         <div className="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin" />
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // Double the templates for seamless infinite loop
   const duplicatedTemplates = [...templates, ...templates];
@@ -200,11 +197,17 @@ function Templates() {
 
         {/* Infinite Marquee Slider */}
         <div 
+          ref={constraintsRef}
           className="relative flex overflow-hidden group"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
           <motion.div
+            drag="x"
+            dragConstraints={constraintsRef}
+            dragElastic={0.1}
+            onDragStart={() => setIsPaused(true)}
+            onDragEnd={() => setIsPaused(false)}
             animate={isPaused ? { x: undefined } : { x: ["0%", "-50%"] }}
             transition={{
               x: {
@@ -214,7 +217,7 @@ function Templates() {
                 ease: "linear",
               },
             }}
-            className="flex gap-8"
+            className="flex gap-8 cursor-grab active:cursor-grabbing"
           >
             {duplicatedTemplates.map((template, idx) => (
               <div

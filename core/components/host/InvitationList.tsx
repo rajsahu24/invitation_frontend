@@ -21,6 +21,8 @@ interface Invitation {
   invitation_title: string;
   hostName: string;
   events: InvitationEvent[];
+  created_at:Date
+  updated_at:Date
 }
 
 interface InvitationListProps {
@@ -240,7 +242,11 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
           )}
 
           {/* Invitation Cards */}
-          {invitations.map((invite) => {
+          {invitations.sort((a, b) => {
+            const dateA = new Date(a.updated_at || a.created_at || 0).getTime();
+            const dateB = new Date(b.updated_at || b.created_at || 0).getTime();
+            return dateB - dateA;
+          }).map((invite) => {
           
 
             return (
