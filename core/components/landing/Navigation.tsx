@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 const navLinks = [
   { name: 'Features', href: '#features' },
   { name: 'How It Works', href: '#how-it-works' },
-  { name: 'Templates', href: '#templates' },
+  { name: 'Templates', href: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/templates` },
   { name: 'Pricing', href: '#pricing' },
 ];
 
