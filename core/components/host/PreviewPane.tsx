@@ -30,7 +30,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
   if(slug!==undefined){
     button_url =  `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${slug}`
   }else{
-    button_url = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/public/${public_id}`
+    button_url = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/public/${public_id}`
   }
   console.log(selectedTemplate  )
   
