@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence, useMotionValue, useAnimationFrame } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useHostStore } from '@/lib/store';
@@ -86,9 +86,34 @@ function Templates(template_data:TemplateDataProps) {
   const router = useRouter();
   const { user } = useHostStore();
 
-  const [isPaused, setIsPaused] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(-300); // Start offset to have content on both sides
   const templates = template_data.template_data
+  const isDragging = useRef(false);
+
+  // Custom animation loop for infinite scroll marquee
+  useAnimationFrame((time, delta) => {
+    // Always auto-scroll unless user is actively dragging
+    if (isDragging.current || !sliderRef.current) return;
+    
+    const containerWidth = sliderRef.current.offsetWidth;
+    // Calculate movement based on 40s duration for full pass
+    const moveAmount = (delta / 1000) * (containerWidth / 40);
+    
+    const currentPos = x.get();
+    const newPos = currentPos - moveAmount;
+    
+    // Get total width of ONE set of templates (we have 3 sets for seamless loop)
+    const totalWidth = sliderRef.current.scrollWidth / 3;
+    
+    // Seamless infinite loop: when we've scrolled one full set, jump back to start
+    if (newPos <= -totalWidth) {
+      x.set(newPos + totalWidth);
+    } else {
+      x.set(newPos);
+    }
+  });
  
 
   if (!templates || templates.length === 0) {
@@ -159,7 +184,7 @@ function Templates(template_data:TemplateDataProps) {
   // }
 
   // Double the templates for seamless infinite loop
-  const duplicatedTemplates = [...templates, ...templates];
+  const duplicatedTemplates = [...templates, ...templates, ...templates];
 
   return (
     <section id="templates" className="py-24 bg-[#F8FAFC] overflow-hidden">
@@ -199,23 +224,26 @@ function Templates(template_data:TemplateDataProps) {
         <div 
           ref={constraintsRef}
           className="relative flex overflow-hidden group"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+          style={{ touchAction: 'none' }}
         >
           <motion.div
+            ref={sliderRef}
             drag="x"
-            dragConstraints={constraintsRef}
-            dragElastic={0.1}
-            onDragStart={() => setIsPaused(true)}
-            onDragEnd={() => setIsPaused(false)}
-            animate={isPaused ? { x: undefined } : { x: ["0%", "-50%"] }}
-            transition={{
-              x: {
-                repeat: Infinity,
-                repeatType: "loop",
-                duration: 40,
-                ease: "linear",
-              },
+            dragConstraints={{ left: -1000, right: 1000 }}
+            dragElastic={0.15}
+            dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+            style={{ x }}
+            onDragStart={() => {
+              console.log('[TEMPLATE_SLIDER] Drag started');
+              isDragging.current = true;
+            }}
+            onDragEnd={(event, info) => {
+              console.log('[TEMPLATE_SLIDER] Drag ended', { 
+                offsetX: info.offset.x, 
+                velocityX: info.velocity.x 
+              });
+              // Resume animation immediately after drag ends
+              isDragging.current = false;
             }}
             className="flex gap-8 cursor-grab active:cursor-grabbing"
           >
@@ -224,6 +252,22 @@ function Templates(template_data:TemplateDataProps) {
                 key={`${template.id}-${idx}`}
                 className="flex-shrink-0 w-[150px] md:w-[200px] cursor-pointer"
                 onClick={() => handleTemplateClick(template)}
+                onMouseEnter={() => {
+                  console.log('[TEMPLATE_SLIDER] Hover - pausing');
+                  isDragging.current = true;
+                }}
+                onMouseLeave={() => {
+                  console.log('[TEMPLATE_SLIDER] Hover end - resuming');
+                  isDragging.current = false;
+                }}
+                onPointerDown={() => {
+                  console.log('[TEMPLATE_SLIDER] Touch - pausing');
+                  isDragging.current = true;
+                }}
+                onPointerUp={() => {
+                  console.log('[TEMPLATE_SLIDER] Touch end - resuming');
+                  isDragging.current = false;
+                }}
               >
                 <div className="flex flex-col items-center">
                   <PhoneMockup 
@@ -236,8 +280,9 @@ function Templates(template_data:TemplateDataProps) {
                       {template.template_name}
                     </h3>
                     <Link
-                      href={`${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/preview/${template.template_type}/${template.template_name?.replace(/ /g, "_")}/demo`}
+                      href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/preview/${template.template_type}/${template.template_name?.replace(/ /g, "_")}/demo`}
                       target="_blank"
+                      onClick={(e) => e.stopPropagation()}
                       className="inline-flex items-center gap-2 text-blue-600 font-bold text-xs bg-white border border-slate-200 hover:bg-blue-600 hover:text-white px-5 py-2.5 rounded-xl transition-all shadow-sm"
                     >
                       View Demo <ExternalLink className="w-3.5 h-3.5" />
@@ -248,9 +293,9 @@ function Templates(template_data:TemplateDataProps) {
             ))}
           </motion.div>
           
-          {/* Gradient Overlays for Fade Effect */}
-          {/* <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-[#F8FAFC] to-transparent z-10 pointer-events-none" /> */}
-          {/* <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-[#F8FAFC] to-transparent z-10 pointer-events-none" /> */}
+          {/* Gradient Overlays for Fade Effect - hides white space at edges */}
+          {/* <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#F8FAFC] to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#F8FAFC] to-transparent z-10 pointer-events-none" /> */}
         </div>
       </div>
     </section>
@@ -258,3 +303,4 @@ function Templates(template_data:TemplateDataProps) {
 }
 
 export default Templates;
+

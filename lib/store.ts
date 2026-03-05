@@ -130,18 +130,21 @@ export const useHostStore = create<HostState>()(
         }
       }),
 
-      logout: async () => {
-        try {
-          await fetch(`/api/auth/logout`, {
-            method: 'POST',
-            credentials: 'include'
-          });
-        } catch (error) {
-          console.error('Logout error:', error);
-        } finally {
-          set({ user: null, currentInvitationId: null, selectedTemplate: null });
-        }
-      },
+     logout: async () => {
+  try {
+    await fetch(`/api/auth/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+  } finally {
+    set({
+      user: null,
+      invitations: [],
+      currentInvitationId: null,
+      selectedTemplate: null
+    });
+  }
+},
 
       createInvitation: (invitation) => set((state) => ({
         invitations: [...state.invitations, { ...invitation, events: [] }],

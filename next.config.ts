@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
           source: "/public/:public_id",
           destination: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/public/:public_id`,
         },
+        {
+          source: "/preview/:path*",
+          destination: `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/preview/:path*`,
+        },
       ],
     };
   },
