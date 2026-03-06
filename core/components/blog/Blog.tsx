@@ -105,7 +105,7 @@ function Blog({ blog }: Blogprops) {
       
       case 'list':
         const ListTag = node.listType === 'number' ? 'ol' : 'ul';
-        const listClass = node.listType === 'number' ? 'list-decimal ml-6 mb-4' : 'list-disc ml-6 mb-4';
+        const listClass = node.listType === 'number' ? 'list-decimal ml-6 mb-4 text-gray-600' : 'list-disc ml-6 mb-4 text-gray-600';
         return (
           <ListTag className={listClass}>
             {node.children?.map((child: any, i: number) => (
