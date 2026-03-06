@@ -11,6 +11,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const blog = await res.json()
 
+  if(!blog) return [
+    
+    {
+      url:  `${BASE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+  ]
+  
   const blogUrls = blog.map((item: any) => {
 
     const slug = item.slug
