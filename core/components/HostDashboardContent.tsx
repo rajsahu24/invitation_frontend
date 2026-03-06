@@ -561,6 +561,7 @@ function HostDashboardContent({
                   }
                   return (
                     <DetailsForm 
+                      key={section.section_id}
                       template_key={template_key}
                       onRealTimeUpdate={handleRealTimeUpdate}
                       section={section}

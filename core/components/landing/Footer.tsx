@@ -136,31 +136,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Newsletter section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mt-12 p-8 bg-gradient-to-r from-blue-800/30 to-indigo-800/30 rounded-2xl backdrop-blur-sm border border-blue-700/30"
-        >
-          <div className="max-w-2xl mx-auto text-center">
-            <h4 className="text-xl font-semibold mb-2">Stay Updated</h4>
-            <p className="text-blue-200 mb-6 text-sm">
-              Get the latest templates, tips, and exclusive offers delivered to your inbox
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-full bg-white/10 border border-blue-600/30 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300">
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </motion.div>
+
       </div>
     </footer>
   );

@@ -22,7 +22,7 @@ import {
   Bold, Italic, Underline, Strikethrough, 
   List, ListOrdered, Quote, Code, 
   Link, Image as ImageIcon, Undo, Redo,
-  Heading1, Heading2, Heading3
+  Heading1, Heading2, Heading3, Save, X
 } from "lucide-react";
 
 // Custom Image Node
@@ -313,17 +313,20 @@ function ImageUploadButton({ editor }: { editor: any }) {
       const base64 = reader.result as string;
       const fileName = file.name;
       
-      // Insert image node with size
+      // Insert image node with size and add paragraph after
       editor.update(() => {
         const root = $getRoot();
         const imageNode = new ImageNode(base64, fileName, size);
+        const newParagraph = $createParagraphNode();
         
-        const firstChild = root.getFirstChild();
-        
-        if (firstChild) {
-          firstChild.insertAfter(imageNode);
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          // Insert at cursor position
+          selection.insertNodes([imageNode, newParagraph]);
         } else {
+          // Append to end
           root.append(imageNode);
+          root.append(newParagraph);
         }
       }, {
         onError: (error: Error) => {
@@ -491,17 +494,82 @@ const editorConfig = {
 // Main Editor Component
 export default function Editor() {
   const [content, setContent] = useState<any>(null);
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChange = useCallback((editorState: EditorState) => {
     const json = editorState.toJSON();
-    console.log("Editor content:", json);
+    setContent(json);
   }, []);
 
   const handleSave = useCallback((json: any) => {
     setContent(json);
-    // You can implement auto-save to localStorage or API here
     localStorage.setItem("blog-draft", JSON.stringify(json));
   }, []);
+
+  const generateSlug = (text: string) => {
+    return text.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    setSlug(generateSlug(newTitle));
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnail(file);
+      const reader = new FileReader();
+      reader.onload = () => setThumbnailPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!title || !content) {
+      alert("Please add a title and content");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('slug', slug);
+      formData.append('content', JSON.stringify(content));
+      formData.append('meta_title', metaTitle || title);
+      formData.append('meta_description', metaDescription);
+      formData.append('status', '1');
+      if (thumbnail) {
+        formData.append('image', thumbnail);
+      }
+
+      const response = await fetch('/api/blog', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+
+      if (response.ok) {
+        alert("Blog published successfully!");
+        localStorage.removeItem("blog-draft");
+      } else {
+        alert("Failed to publish blog");
+      }
+    } catch (error) {
+      console.error('Error publishing blog:', error);
+      alert("Error publishing blog");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Load saved content on mount
   useEffect(() => {
@@ -514,14 +582,91 @@ export default function Editor() {
   return (
     <div className="min-h-screen bg-white">
       <LexicalComposer initialConfig={editorConfig}>
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto">
+          {/* Publish Button */}
+          <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center">
+            <h2 className="text-lg font-bold text-gray-900">Write Blog</h2>
+            <button
+              onClick={handlePublish}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? "Publishing..." : "Publish"}
+            </button>
+          </div>
+
           <ToolbarPlugin />
+          
+          {/* Meta Fields */}
+          <div className="px-8 py-6 space-y-4 border-b border-gray-200">
+            <input
+              type="text"
+              placeholder="Blog Title"
+              value={title}
+              onChange={handleTitleChange}
+              className="w-full text-4xl font-bold focus:outline-none text-gray-900"
+            />
+            <input
+              type="text"
+              placeholder="Slug (auto-generated)"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              className="w-full text-sm text-gray-600 focus:outline-none border-b border-gray-200 pb-2"
+            />
+            
+            {/* Thumbnail Upload */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700">Blog Thumbnail</label>
+              {thumbnailPreview && (
+                <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+                  <img src={thumbnailPreview} alt="Thumbnail" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => {
+                      setThumbnail(null);
+                      setThumbnailPreview(null);
+                    }}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors">
+                <ImageIcon className="w-5 h-5 text-gray-400" />
+                <span className="text-sm text-gray-600">{thumbnail ? 'Change Thumbnail' : 'Upload Thumbnail'}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Meta Title (optional)"
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+              maxLength={250}
+              className="w-full text-sm text-gray-600 focus:outline-none border-b border-gray-200 pb-2"
+            />
+            <textarea
+              placeholder="Meta Description (optional)"
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              maxLength={500}
+              rows={2}
+              className="w-full text-sm text-gray-600 focus:outline-none border-b border-gray-200 pb-2 resize-none"
+            />
+          </div>
           
           <RichTextPlugin
             contentEditable={
               <ContentEditable 
                 className="
-                  min-h-[calc(100vh-200px)] 
+                  min-h-[calc(100vh-400px)] 
                   px-8 py-6 
                   focus:outline-none 
                   text-lg
@@ -529,9 +674,8 @@ export default function Editor() {
               />
             }
             placeholder={
-              <div className="absolute top-20 left-8 text-gray-400 text-lg pointer-events-none">
-                <p className="mb-2 text-3xl font-serif text-gray-300">Tell your story...</p>
-                <p className="text-gray-300">Title</p>
+              <div className="absolute top-[480px]  text-gray-400 text-lg pointer-events-none">
+                <p className="text-gray-300">Start writing your blog...</p>
               </div>
             }
             ErrorBoundary={LexicalErrorBoundary}

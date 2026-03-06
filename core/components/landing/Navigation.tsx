@@ -7,10 +7,10 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const navLinks = [
-  { name: 'Features', href: '#features' },
-  { name: 'How It Works', href: '#how-it-works' },
+  { name: 'Home', href: '/' },
   { name: 'Templates', href: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/templates` },
-  { name: 'Pricing', href: '#pricing' },
+  { name: 'About', href: '/about-us' },
+  { name: 'Blog', href: '/blog' },
 ];
 
 export default function Navigation() {
@@ -68,7 +68,7 @@ export default function Navigation() {
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Inviteera
             </span> */}
-            <Image width={300} height={400} className="h-40 -ml-8 sm:ml-auto  lg:h-52    w-auto"  src="/homelogo.svg" alt="home logo" />
+            <Image width={500} height={500} className="h-40 mt-2 -ml-16 sm:ml-auto  lg:h-16    w-auto"  src="/homelogo.svg" alt="home logo" />
           </Link>
 
           {/* Desktop Navigation */}
