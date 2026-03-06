@@ -16,14 +16,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const template_name = item.template_name
       .toLowerCase()
       .replace(/&/g, "")
-      .replace(/\s+/g, "-")
+      .replace(/\s+/g, "_")
 
     const template_type = item.template_type.toLowerCase()
       .replace(/&/g, "")
-      .replace(/\s+/g, "-")
+      .replace(/\s+/g, "_")
 
     return {
-      url: `${BASE_URL}/preview/${item.template_key}/${template_type}/${template_name}`,
+      url: `${BASE_URL}/preview/${template_type}/${template_name}`,
       lastModified: new Date(item.updated_at),
       changeFrequency: "monthly" as const,
       priority: 0.8,
