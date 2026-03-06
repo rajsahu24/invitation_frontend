@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .replace(/\s+/g, "_")
 
     return {
-      url: `${BASE_URL}/preview/${template_type}/${template_name}`,
+      url: `${BASE_URL}/preview/${template_type}/${template_name}/demo`,
       lastModified: new Date(item.updated_at),
       changeFrequency: "monthly" as const,
       priority: 0.8,
