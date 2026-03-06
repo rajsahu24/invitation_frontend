@@ -15,11 +15,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const template_name = item.template_name
       .toLowerCase()
-      .replace(/&/g, "")
       .replace(/\s+/g, "_")
 
     const template_type = item.template_type.toLowerCase()
-      .replace(/&/g, "")
       .replace(/\s+/g, "_")
 
     return {
