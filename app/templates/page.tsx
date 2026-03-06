@@ -1,8 +1,9 @@
 import TemplateGallery from '@/core/components/template/template';
 
+export const dynamic = 'force-dynamic';
 
 async function page() {
-      let template_data = [];
+  let template_data = [];
   
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`, {
