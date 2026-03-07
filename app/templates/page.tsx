@@ -1,3 +1,5 @@
+import Footer from '@/core/components/landing/Footer';
+import Navigation from '@/core/components/landing/Navigation';
 import TemplateGallery from '@/core/components/template/template';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +17,11 @@ async function page() {
     console.error('Error fetching templates:', error);
   }
 
-  return <TemplateGallery template_data={template_data} />;
+  return <>
+  <Navigation />
+  <TemplateGallery template_data={template_data} />
+  <Footer/>
+  </>
 }
 
 export default page

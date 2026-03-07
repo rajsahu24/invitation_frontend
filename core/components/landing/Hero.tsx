@@ -113,9 +113,9 @@ export default function Hero() {
             Get Started Free
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <button className="w-full sm:w-auto px-10 py-4 bg-white text-gray-700 rounded-2xl font-bold text-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-2 border-gray-100 flex items-center justify-center">
-            View Examples
-          </button>
+          <Link href={"/templates"} className="w-full sm:w-auto px-10 py-4 bg-white text-gray-700 rounded-2xl font-bold text-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-2 border-gray-100 flex items-center justify-center">
+            View Templates
+          </Link>
         </motion.div>
       </div>
     </section>

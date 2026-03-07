@@ -6,6 +6,7 @@ import { useHostStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 
 function TemplateGallery({ template_data }: { template_data: Template[] }) {
+    const { user } = useHostStore();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const { setSelectedTemplate } = useHostStore();
@@ -19,22 +20,63 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
     return matchesCategory && matchesSearch;
   });
 
-  const handleSelectTemplate = (template: Template) => {
-    setSelectedTemplate(template);
-    router.push('/host/create-invitation');
+  const handleTemplateClick = async (template: Template) => {
+    if (!user) {
+      // Store pending invitation and redirect to login
+      localStorage.setItem('pending_invitation', JSON.stringify({
+        id: template.id,
+        template_type: template.template_type,
+        template_name: template.template_name
+      }));
+      router.push('/login');
+      return;
+    }
+
+    // Direct creation if logged in
+    try {
+      
+      const now = new Date();
+      const invitationTitle = now.toLocaleDateString('en-GB', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric' 
+      }) + ' ' + now.toLocaleTimeString('en-GB', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+       console.log("formData.......",template)
+      const formData = new FormData();
+      formData.append('invitation_title', invitationTitle);
+      formData.append('invitation_type', template.template_type.toLowerCase());
+      formData.append('invitation_template_id', template.id);
+      formData.append('metadata', JSON.stringify({}));
+     
+      const response = await fetch(`/api/invitations`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        router.push(`/host/${data.id}`);
+      }
+    } catch (error) {
+      console.error('Failed to create invitation:', error);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-14">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Choose Your Template</h1>
           <p className="text-gray-600">Select a beautiful template to create your invitation</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         {/* Search and Filter */}
         <div className="mb-8 space-y-4">
           <input
@@ -50,6 +92,7 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
+                
                 className={`px-4 py-2 rounded-full text-sm font-medium transition ${
                   selectedCategory === category
                     ? 'bg-blue-600 text-white'
@@ -77,7 +120,7 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
               <div
                 key={template.id}
                 className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-200"
-                
+                onClick={()=> handleTemplateClick(template)}
               >
                 <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
                   <img
