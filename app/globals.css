@@ -1,35 +1,70 @@
 @import "tailwindcss";
 
+/* InviteEra Design System - Container */
+@layer components {
+  .container-landing {
+    @apply mx-auto max-w-[1400px] px-6 md:px-12 lg:px-20;
+  }
+}
+
+/* InviteEra Design System */
 :root {
-  /* Partiful-inspired vibrant color palette */
+  /* Color Palette */
+  --color-bg-primary: #F7F5F0;
+  --color-bg-section-alt: #EDF2EC;
+  --color-bg-dark: #1C1C1C;
+  --color-accent-primary: #4A7C59;
+  --color-accent-secondary: #7BAE7F;
+  --color-accent-coral: #E07B5A;
+  --color-text-heading: #1A1A1A;
+  --color-text-body: #5A5A5A;
+  --color-text-muted: #9A9A9A;
+  --color-text-white: #FFFFFF;
+  --color-card-bg: #FFFFFF;
+  --color-border: #E8E4DC;
+  --color-gold-star: #F5C518;
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing Scale */
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 32px;
+  --space-lg: 64px;
+  --space-xl: 100px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 50px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.07);
+  --shadow-hover: 0 12px 40px rgba(0,0,0,0.13);
+  --shadow-phone: 0 24px 64px rgba(0,0,0,0.18);
+
+  /* Legacy color palette */
   --background: #faf9f7;
   --foreground: #1a1a2e;
-
-  /* Vibrant purples and neons */
   --primary: #8b5cf6;
   --primary-dark: #7c3aed;
   --primary-light: #a78bfa;
   --secondary: #ec4899;
   --accent: #06b6d4;
   --accent-neon: #22d3ee;
-
-  /* Fun party colors */
   --party-purple: #a855f7;
   --party-pink: #f472b6;
   --party-cyan: #22d3ee;
   --party-yellow: #facc15;
   --party-orange: #fb923c;
-
-  /* Gradients */
   --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
   --gradient-party: linear-gradient(135deg, #a855f7 0%, #f472b6 50%, #22d3ee 100%);
   --gradient-sunset: linear-gradient(135deg, #fb923c 0%, #f472b6 100%);
-
-  /* Card backgrounds */
   --card-bg: #ffffff;
   --card-border: #f0f0f5;
-
-  /* Shadows */
   --shadow-glow-purple: 0 0 40px rgba(139, 92, 246, 0.3);
   --shadow-glow-pink: 0 0 40px rgba(236, 72, 153, 0.3);
 }
@@ -274,4 +309,26 @@ body {
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
+}
+
+/* Scroll fade-in animation */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.fade-in-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slider styles */
+.slider-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.slider-container:active {
+  cursor: grabbing;
 }

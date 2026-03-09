@@ -40,7 +40,7 @@ const GuestList: React.FC<GuestListProps> = ({ guests = [], onAddGuest, invitati
   const { currentInvitationId } = useHostStore();
  
   const handleWhatsAppShare = (guest: Guest, invitation: Invitation | undefined) => {
-    const invitationUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${guest.rsvp_token}`;
+    const invitationUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${guest.rsvp_token}`;
     const message = `Hi ${guest.name}! 🎉\n\nYou're invited to ${invitation?.invitation_title}!\n\nView your invitation: ${invitationUrl}`;
     const whatsappUrl = `https://wa.me/${guest.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');

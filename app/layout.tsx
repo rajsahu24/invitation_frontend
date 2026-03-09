@@ -1,35 +1,41 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import { organizationSchema } from "@/lib/schema";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
   subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const lato = Lato({
   subsets: ["latin"],
+  weight: ["300", "400"],
+  variable: "--font-lato",
 });
 
 export const metadata: Metadata = {
-  title: "Inviteera – Create Beautiful Online Invitations & Track RSVPs",
+  title: "InviteEra – Create Beautiful Digital Invitations & Live Countdown Timers",
   description:
-    "Inviteera is an online invitation maker to design, send, and track RSVPs for weddings, birthdays, corporate events, and more.",
+    "Create stunning digital invitations with live countdown timers for weddings, baby showers, birthdays, and every milestone worth celebrating. Share via WhatsApp, Instagram, email, or print at home.",
   keywords: [
     "online invitation maker",
+    "digital invitations",
     "wedding invitation website",
-    "digital invites",
+    "event invitations",
     "RSVP tracking",
-    "birthday invitation maker"
+    "countdown timer",
+    "birthday invitation maker",
+    "wedding invitations"
   ],
   openGraph: {
-    title: "Inviteera – Online Invitation Maker",
+    title: "InviteEra – Beautiful Digital Invitations",
     description:
-      "Design stunning invitations and manage RSVPs in one place.",
-    url: "https://inviteera.com",
-    siteName: "Inviteera",
+      "Create stunning digital invitations with live countdown timers for your special moments.",
+    url: "https://InviteEra.com",
+    siteName: "InviteEra",
     type: "website",
   },
   icons: {
@@ -46,10 +52,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${playfair.variable} ${lato.variable} antialiased`}
       >
-                <script
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
