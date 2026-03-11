@@ -123,7 +123,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                 placeholder="e.g. Wedding Ceremony"
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all"
+                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all"
+                style={{ borderColor: 'var(--color-accent-primary)' }}
               />
             </div>
 
@@ -135,7 +136,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                   required
                   value={formData.start_time}
                   onChange={e => setFormData({...formData, start_time: e.target.value})}
-                  className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all"
+                  className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all"
+                  style={{ borderColor: 'var(--color-accent-primary)' }}
                 />
               </div>
 
@@ -147,7 +149,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                   placeholder="Event location"
                   value={formData.location}
                   onChange={e => setFormData({...formData, location: e.target.value})}
-                  className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all"
+                  className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all"
+                  style={{ borderColor: 'var(--color-accent-primary)' }}
                 />
               </div>
             </div>
@@ -159,7 +162,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
                 rows={3}
-                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all resize-none"
+                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all resize-none"
+                style={{ borderColor: 'var(--color-accent-primary)' }}
               />
             </div>
 
@@ -170,7 +174,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
               <button
                 type="button"
                 onClick={() => setShowAddQuestion(!showAddQuestion)}
-                className="flex items-center gap-2 text-violet-600 hover:text-violet-700 font-medium mb-4"
+                className="flex items-center gap-2 font-medium mb-4"
+                style={{ color: 'var(--color-accent-primary)' }}
               >
                 <Plus className="w-4 h-4" />
                 Add Question
@@ -181,7 +186,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                   <select
                     value={newQuestion.type}
                     onChange={e => setNewQuestion({...newQuestion, type: e.target.value as 'dropdown' | 'short_answer', options: []})}
-                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-200 focus:border-violet-500 outline-none"
+                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-200 outline-none"
+                    style={{ borderColor: 'var(--color-accent-primary)' }}
                   >
                     <option value="short_answer">Short Answer</option>
                     <option value="dropdown">Dropdown</option>
@@ -192,7 +198,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                     placeholder="Enter your question"
                     value={newQuestion.question}
                     onChange={e => setNewQuestion({...newQuestion, question: e.target.value})}
-                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-200 focus:border-violet-500 outline-none"
+                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-200 outline-none"
+                    style={{ borderColor: 'var(--color-accent-primary)' }}
                   />
 
                   {newQuestion.type === 'dropdown' && (
@@ -204,7 +211,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                           value={newOption}
                           onChange={e => setNewOption(e.target.value)}
                           onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addOption())}
-                          className="flex-1 px-3 py-2 text-black rounded-lg border border-gray-200 focus:border-violet-500 outline-none"
+                          className="flex-1 px-3 py-2 text-black rounded-lg border border-gray-200 outline-none"
+                style={{ borderColor: 'var(--color-accent-primary)' }}
                         />
                         <button
                           type="button"
@@ -237,7 +245,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                   <button
                     type="button"
                     onClick={addQuestion}
-                    className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 text-sm"
+                    className="px-4 py-2 text-white rounded-lg text-sm transition-colors"
+                style={{ backgroundColor: 'var(--color-accent-primary)' }}
                   >
                     Add Question
                   </button>
@@ -251,7 +260,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-medium text-violet-600 uppercase">{q.type.replace('_', ' ')}</span>
+                            <span className="text-xs font-medium uppercase"
+                             style={{ color: 'var(--color-accent-primary)' }}>{q.type.replace('_', ' ')}</span>
                           </div>
                           <p className="text-sm font-medium text-gray-900">{q.question}</p>
                           {q.options && q.options.length > 0 && (
@@ -278,7 +288,8 @@ export default function EventForm({ invitationId, eventId, eventData, onCancel }
               <button 
                 type="submit"
                 disabled={isSubmitting || !formData.name || !formData.start_time || !formData.location}
-                className="w-full py-4 bg-violet-600 text-white rounded-xl font-bold text-lg hover:bg-violet-700 transform active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:transform-none"
+                className="w-full py-4 text-white rounded-xl font-bold text-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:transform-none"
+                style={{ backgroundColor: 'var(--color-accent-primary)' }}
               >
                 {isSubmitting ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

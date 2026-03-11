@@ -126,14 +126,20 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ section, onUpload, invitati
       <div className="flex items-center justify-between mb-6">
         <div>
            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <ImageIcon className="w-5 h-5 text-violet-500" />
+            <ImageIcon className="w-5 h-5"style={{ 
+              backgroundColor: 'var(--color-accent-primary)', 
+              color: 'var(--color-text-white)' 
+            }} />
             Photo Gallery
           </h3>
           <p className="text-sm text-gray-500">Share memories with your guests</p>
         </div>
        
         <div>
-          <label className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl font-medium cursor-pointer hover:bg-violet-700 transition-colors">
+          <label style={{ 
+              backgroundColor: 'var(--color-accent-primary)', 
+              color: 'var(--color-text-white)' 
+            }} className="flex items-center gap-2 px-4 py-2 text-white rounded-xl font-medium cursor-pointer transition-colors">
             {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {isUploading ? 'Uploading...' : 'Upload Photos'}
             <input 
@@ -150,7 +156,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ section, onUpload, invitati
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-accent-primary)' }} />
         </div>
       ) : photos.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">

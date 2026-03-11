@@ -3,6 +3,7 @@ import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import { organizationSchema } from "@/lib/schema";
 
+
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "700"],
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
     shortcut: "/favicon.ico",
     apple: "/logo.png",
   },
@@ -67,8 +68,8 @@ export default function RootLayout({
             __html: JSON.stringify(organizationSchema),
           }}
         />
-        {children}
-      </body>
+          {children}
+        </body>
     </html>
   );
 }

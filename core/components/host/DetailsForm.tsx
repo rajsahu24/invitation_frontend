@@ -574,8 +574,12 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
             className={`flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
               isDisabled 
                 ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
-                : 'border-gray-300 hover:border-violet-500 hover:bg-violet-50'
+                : 'border'
             }`}
+            style={{
+                borderColor: isDisabled ? 'var(--color-border)' : 'var(--color-accent-primary)',
+                backgroundColor: isDisabled ? 'var(--color-bg-section-alt)' : 'var(--color-card-bg)'
+            }}
           >
             <Upload className="w-5 h-5 text-gray-400" />
             <span className="text-sm text-gray-500">
@@ -605,7 +609,13 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
             required={field.required}
             disabled={isDisabled}
             rows={4}
-            className="px-4 py-3 text-sm border border-gray-200 text-gray-950 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all w-full resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+            className="px-4 py-3 text-sm border text-gray-950 rounded-xl focus:ring-4 outline-none transition-all w-full resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+            style={{
+                borderColor: isDisabled ? 'var(--color-border)' : 'var(--color-border)',
+                backgroundColor: isDisabled ? 'var(--color-bg-section-alt)' : 'var(--color-card-bg)',
+                color: 'var(--color-text-heading)',
+                '--tw-ring-color': 'var(--color-accent-primary)'
+            } as any}
           />
         </div>
       );
@@ -626,8 +636,13 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
           }
           required={field.required}
           disabled={isDisabled}
-          className="px-4 py-3 text-sm border border-gray-200 text-gray-950 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all w-full appearance-none disabled:bg-gray-50 disabled:cursor-not-allowed"
-          style={{ colorScheme: "light" }}
+          className="px-4 py-3 text-sm border text-gray-950 rounded-xl outline-none transition-all w-full appearance-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+          style={{ 
+            borderColor: isDisabled ? 'var(--color-border)' : 'var(--color-border)',
+            backgroundColor: isDisabled ? 'var(--color-bg-section-alt)' : 'var(--color-card-bg)',
+            color: 'var(--color-text-heading)',
+            colorScheme: "light" 
+          }}
         />
       </div>
     );
@@ -701,7 +716,12 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
           <button
             type="button"
             onClick={addRepeatedEntry}
-            className="w-full py-3 border-2 border-dashed border-violet-300 rounded-xl text-violet-600 hover:bg-violet-50 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 border-2 border-dashed rounded-xl transition-colors flex items-center justify-center gap-2"
+            style={{ 
+                borderColor: 'var(--color-accent-primary)',
+                color: 'var(--color-accent-primary)',
+                backgroundColor: 'var(--color-bg-section-alt)'
+            }}
           >
             <Plus className="w-5 h-5" />
             Add {section.schema.label}
@@ -727,10 +747,10 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col h-full">
+    <div className="bg-white rounded-3xl shadow-sm border p-6 flex flex-col h-full" style={{ borderColor: 'var(--color-border)' }}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Type className="w-5 h-5 text-violet-500" />
+        <h3 className="text-lg font-bold flex items-center gap-2" style={{ color: 'var(--color-text-heading)', fontFamily: 'var(--font-display)' }}>
+          <Type className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} />
           {section ? section.schema.label : "Invitation Details"}
         </h3>
       </div>
@@ -743,7 +763,7 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
         )}
       </div>
 
-      <div className="pt-6 border-t border-gray-100 mt-auto">
+      <div className="pt-6 border-t mt-auto" style={{ borderColor: 'var(--color-border)' }}>
         {slugError && section?.display_order === 1 && (
           <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
             {slugError}
@@ -754,9 +774,13 @@ const DetailsForm: React.FC<DetailsFormProps> = ({
           disabled={!isDirty || isLoading || !!slugError}
           className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
             isDirty && !isLoading && !slugError
-              ? "bg-violet-600 text-white hover:bg-violet-700 shadow-lg hover:shadow-xl"
-              : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              ? "text-white shadow-lg hover:shadow-xl"
+              : "cursor-not-allowed"
           }`}
+          style={{
+            backgroundColor: isDirty && !isLoading && !slugError ? 'var(--color-accent-primary)' : 'var(--color-bg-section-alt)',
+            color: isDirty && !isLoading && !slugError ? 'var(--color-text-white)' : 'var(--color-text-muted)'
+          }}
         >
           <Check className="w-4 h-4" />
           {isLoading ? "Saving..." : isDirty ? "Save Changes" : "Saved"}

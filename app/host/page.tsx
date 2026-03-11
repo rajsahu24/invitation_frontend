@@ -1,4 +1,6 @@
 import InvitationList from "@/core/components/host/InvitationList";
+import Footer from "@/core/components/landingV2/Footer";
+import Navigation from "@/core/components/landingV2/Navigation";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -50,6 +52,10 @@ export default async function HostPage() {
   const invitations = await getInvitations(token);
 
   return (
+  <>
+    <Navigation/>
     <InvitationList initialInvitations={invitations} />
+    <Footer/>
+  </>
   );
 }

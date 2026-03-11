@@ -1,5 +1,6 @@
-import Footer from '@/core/components/landing/Footer';
-import Navigation from '@/core/components/landing/Navigation';
+
+import Footer from '@/core/components/landingV2/Footer';
+import Navigation from '@/core/components/landingV2/Navigation';
 import TemplateGallery from '@/core/components/template/template';
 
 export const dynamic = 'force-dynamic';

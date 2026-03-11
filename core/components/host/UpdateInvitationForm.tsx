@@ -82,7 +82,7 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-accent-primary)' }} />
       </div>
     );
   }
@@ -99,7 +99,8 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
         </button>
 
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-violet-100 text-violet-600 mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4"
+            style={{ backgroundColor: 'var(--color-bg-section-alt)', color: 'var(--color-accent-primary)' }}>
             <Sparkles className="w-6 h-6" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Update Invitation</h1>
@@ -120,7 +121,8 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
                 placeholder="e.g. Rahul & Priya's Wedding"
                 value={formData.title}
                 onChange={e => setFormData({...formData, title: e.target.value})}
-                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all"
+                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all"
+                style={{ borderColor: 'var(--color-accent-primary)' }}
               />
             </div>
 
@@ -131,7 +133,8 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
                 placeholder="e.g. Come join us for a wonderful celebration"
                 value={formData.message}
                 onChange={e => setFormData({...formData, message: e.target.value})}
-                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all h-24 resize-none"
+                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all h-24 resize-none"
+                style={{ borderColor: 'var(--color-accent-primary)' }}
               />
             </div>
 
@@ -143,7 +146,8 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
                 placeholder="e.g. Udaipur, Rajasthan"
                 value={formData.location}
                 onChange={e => setFormData({...formData, location: e.target.value})}
-                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all"
+                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all"
+                style={{ borderColor: 'var(--color-accent-primary)' }}
               />
             </div>
 
@@ -153,7 +157,8 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
                 required
                 value={formData.invitation_type}
                 onChange={e => setFormData({...formData, invitation_type: e.target.value})}
-                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all"
+                className="w-full px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all"
+                style={{ borderColor: 'var(--color-accent-primary)' }}
               >
                 <option value="">Select Invitation Type</option>
                 <option value="0">Wedding</option>
@@ -170,7 +175,8 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
                   placeholder="rahul-priya"
                   value={formData.slug}
                   onChange={e => setFormData({...formData, slug: e.target.value})}
-                  className="flex-1 px-4 py-3 text-black rounded-xl border-2 border-gray-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-50 outline-none transition-all"
+                  className="flex-1 px-4 py-3 text-black rounded-xl border-2 border-gray-100 outline-none transition-all"
+                  style={{ borderColor: 'var(--color-accent-primary)' }}
                 />
               </div>
             </div>
@@ -179,7 +185,8 @@ export default function UpdateInvitationForm({ invitationId, onCancel }: Props) 
               <button 
                 type="submit"
                 disabled={isSubmitting || !formData.title || !formData.message || !formData.location || !formData.invitation_type}
-                className="w-full py-4 bg-violet-600 text-white rounded-xl font-bold text-lg hover:bg-violet-700 transform active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:transform-none"
+                className="w-full py-4 text-white rounded-xl font-bold text-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:transform-none"
+                style={{ backgroundColor: 'var(--color-accent-primary)' }}
               >
                 {isSubmitting ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

@@ -1,17 +1,15 @@
-import AboutUs from '@/core/components/about-us/about-us'
+import FAQSection from '@/core/components/landing/FAQSection'
 import Footer from '@/core/components/landingV2/Footer'
 import Navigation from '@/core/components/landingV2/Navigation'
-
 import React from 'react'
 
 function page() {
   return (
-    <>
-    <Navigation />
-      <AboutUs />
-    <Footer />
-
-    </>
+    <div>
+        <Navigation/>
+        <FAQSection />
+        <Footer/>
+    </div>
   )
 }
 

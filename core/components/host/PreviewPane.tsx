@@ -138,7 +138,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
       <div className="p-4 border-b border-gray-100 bg-white flex items-center justify-between z-10">
         <div>
           <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-            <Eye className="w-4 h-4 text-violet-500" />
+            <Eye className="w-4 h-4" style={{ color: 'var(--color-accent-primary)' }} />
             Live Preview
           </h3>
           <p className="text-xs text-gray-500">Updates in real-time</p>
@@ -149,7 +149,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
              href={button_url} 
              target="_blank" 
              rel="noreferrer"
-             className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-violet-600 transition-colors"
+             className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
              title="Open in new tab"
            >
              <ExternalLink className="w-4 h-4" />
@@ -161,7 +161,8 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
       <div className="flex-1 bg-gray-100 relative overflow-hidden flex items-center justify-center p-4">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
-            <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 rounded-full animate-spin" 
+                 style={{ borderColor: 'var(--color-bg-section-alt)', borderTopColor: 'var(--color-accent-primary)' }} />
           </div>
         ) : null}
 

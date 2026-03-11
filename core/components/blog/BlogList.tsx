@@ -10,12 +10,12 @@ interface BlogProps {
 function BlogList({ blogs }: BlogProps) {
   const getColorFromTitle = (title: string) => {
     const colors = [
-      'bg-gradient-to-br from-violet-500 to-purple-600',
-      'bg-gradient-to-br from-blue-500 to-indigo-600',
-      'bg-gradient-to-br from-pink-500 to-rose-600',
-      'bg-gradient-to-br from-green-500 to-emerald-600',
-      'bg-gradient-to-br from-orange-500 to-amber-600',
-      'bg-gradient-to-br from-cyan-500 to-teal-600',
+      { from: '#4A7C59', to: '#3a6347' },
+      { from: '#7BAE7F', to: '#4A7C59' },
+      { from: '#E07B5A', to: '#c4674a' },
+      { from: '#4A7C59', to: '#7BAE7F' },
+      { from: '#4A7C59', to: '#2d4a36' },
+      { from: '#7BAE7F', to: '#5a9a5f' },
     ];
     const index = title.charCodeAt(0) % colors.length;
     return colors[index];
@@ -30,13 +30,13 @@ function BlogList({ blogs }: BlogProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 py-16 pt-28 px-6">
+    <div className="min-h-screen py-16 pt-28 px-8" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-black text-slate-900 mb-4">
-            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">Blog</span>
+          <h1 className="text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>
+            Our <span style={{ color: 'var(--color-accent-primary)' }}>Blog</span>
           </h1>
-          <p className="text-xl text-slate-600">Insights, tips, and stories about digital invitations</p>
+          <p className="text-xl" style={{ color: 'var(--color-text-body)' }}>Insights, tips, and stories about digital invitations</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -44,7 +44,8 @@ function BlogList({ blogs }: BlogProps) {
             <Link
               key={blog.id}
               href={`/blog/${blog.slug}`}
-              className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
+              className="group rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+              style={{ backgroundColor: 'var(--color-card-bg)', border: '1px solid var(--color-border)' }}
             >
               {/* Thumbnail or Letter */}
               <div className="relative h-48 overflow-hidden">
@@ -55,8 +56,11 @@ function BlogList({ blogs }: BlogProps) {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 ) : (
-                  <div className={`w-full h-full flex items-center justify-center ${getColorFromTitle(blog.title)}`}>
-                    <span className="text-6xl font-black text-white">
+                  <div 
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ background: `linear-gradient(to bottom right, ${getColorFromTitle(blog.title).from}, ${getColorFromTitle(blog.title).to})` }}
+                  >
+                    <span className="text-6xl font-bold text-white" style={{ fontFamily: 'var(--font-display)' }}>
                       {blog.title.charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -65,17 +69,19 @@ function BlogList({ blogs }: BlogProps) {
 
               {/* Content */}
               <div className="p-6">
-                <h2 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-violet-600 transition-colors line-clamp-2">
+                <h2 className="text-xl font-bold mb-3 group-hover:transition-colors line-clamp-2"
+                  style={{ color: 'var(--color-text-heading)', fontFamily: 'var(--font-display)' }}
+                >
                   {blog.title}
                 </h2>
                 
                 {blog.meta_description && (
-                  <p className="text-slate-600 text-sm mb-4 line-clamp-3">
+                  <p className="text-sm mb-4 line-clamp-3" style={{ color: 'var(--color-text-body)', fontFamily: 'var(--font-body)' }}>
                     {blog.meta_description}
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 text-xs text-slate-500">
+                <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     <span>{formatDate(blog.created_at)}</span>
@@ -88,7 +94,7 @@ function BlogList({ blogs }: BlogProps) {
 
         {blogs.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-slate-500 text-lg">No blogs published yet.</p>
+            <p className="text-lg" style={{ color: 'var(--color-text-muted)' }}>No blogs published yet.</p>
           </div>
         )}
       </div>

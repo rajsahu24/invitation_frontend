@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Plus, Calendar, Settings, LogOut } from 'lucide-react';
+import { Plus, LogOut, Sparkles, ChevronRight, Settings, Calendar } from 'lucide-react';
 import { useHostStore } from '../../../lib/store';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,6 +14,8 @@ interface InvitationEvent {
   date: string;
   start_time: string;
   end_time: string;
+  location?: string;
+  capacity?: number;
 }
 
 interface Invitation {
@@ -21,17 +23,37 @@ interface Invitation {
   invitation_title: string;
   hostName: string;
   events: InvitationEvent[];
-  created_at:Date
-  updated_at:Date
+  created_at: Date;
+  updated_at: Date;
+  status?: 'draft' | 'published' | 'past';
 }
 
 interface InvitationListProps {
   initialInvitations?: Invitation[];
 }
 
+// Animation variants for staggered entrance
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as any }
+  }
+};
+
 export default function InvitationList({ initialInvitations = [] }: InvitationListProps) {
   const { user, logout, setCurrentInvitation, updateInvitation } = useHostStore();
-  const [invitationPublic, setInvitationPublic] = useState<string>()
   const [invitations, setInvitations] = useState<Invitation[]>(initialInvitations);
   const [loading, setLoading] = useState(invitations.length === 0);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -45,7 +67,6 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
   const onCancelCreate = async () => {
     setShowCreateForm(false);
     setShowUpdateForm(null);
-    // Refetch invitations after creating
     if (user?.id) {
       try {
         const response = await fetch(`/api/invitations/user/${user.id}`, {
@@ -69,14 +90,12 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
 
   const handleInvitationClick = async (invitation: Invitation) => {
     try {
-      // Fetch detailed invitation data
       const response = await fetch(`/api/invitations/${invitation.id}`, {
         credentials: 'include'
       });
       
       if (response.ok) {
         const invitationData = await response.json();
-        // Transform API data to match store interface
         const transformedInvitation = {
           id: invitationData.id,
           title: invitationData.invitation_title,
@@ -94,10 +113,8 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
           }))
         };
         
-        // Store invitation data in store
         updateInvitation(transformedInvitation);
         setCurrentInvitation(invitation.id);
-        // Navigate to dashboard with invitation ID
         router.push(`/host/${invitation.id}`);
       }
     } catch (error) {
@@ -177,6 +194,7 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
 
     fetchInvitations();
   }, [user?.id, initialInvitations.length]);
+
   if (showCreateForm) {
     return <CreateInvitationForm onCancel={onCancelCreate} />;
   }
@@ -186,104 +204,186 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">👋</span>
-            <h1 className="text-lg font-bold text-gray-900">Welcome, {user?.name}</h1>
-          </div>
-          <button 
-            onClick={async () => {
-              await logout();
-              router.push('/login');
-            }}
-            className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Your Invitations</h2>
-          <button
-            onClick={onCreateNew}
-            className="px-5 py-2.5 bg-violet-600 cursor-pointer text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Create New
-          </button>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Create New Card (Empty State or First Item) */}
-          <button
-            onClick={onCreateNew}
-            className="group flex flex-col cursor-pointer items-center justify-center p-8 bg-white border-2 border-dashed border-gray-200 rounded-3xl hover:border-violet-300 hover:bg-violet-50/50 transition-all min-h-[200px]"
-          >
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Plus className="w-8 h-8 text-gray-400 group-hover:text-violet-500" />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+      {/* Header */}
+      {/* <header className="bg-white/80 backdrop-blur-sm border-b" style={{ borderColor: 'var(--color-border)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" 
+                style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%)' }}>
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Welcome back</p>
+                <h1 className="text-lg font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>{user?.name}</h1>
+              </div>
             </div>
-            <span className="font-bold text-gray-900">Create New Invitation</span>
-            <span className="text-sm text-gray-500 mt-1">Design a new experience</span>
-          </button>
+            
+            <button 
+              onClick={async () => {
+                await logout();
+                router.push('/login');
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all"
+              style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-section-alt)' }}
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </header> */}
 
+      <main className="container-landing pt-28  py-8">
+        {/* Title Section */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-1 items-center justify-between mb-8">
+          <div className='text-center md:text-left'>
+            <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>
+              Your Invitations
+            </h2>
+            <p className="mt-1" style={{ color: 'var(--color-text-body)' }}>
+              Manage and track all your event invitations
+            </p>
+          </div>
+          
+          <button
+            onClick={onCreateNew}
+            className="group px-5 py-3 rounded-xl font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+            style={{ 
+              backgroundColor: 'var(--color-accent-primary)', 
+              color: 'var(--color-text-white)' 
+            }}
+          >
+            <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            New Invitation
+          </button>
+        </div>
+
+        {/* Grid View */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {/* Loading State */}
           {loading && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded mb-4"></div>
-              <div className="h-6 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded mb-6"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-            </div>
+            <>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-2xl p-6 border animate-pulse" style={{ borderColor: 'var(--color-border)' }}>
+                  <div className="h-40 bg-gray-200 rounded-xl mb-4"></div>
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ))}
+            </>
           )}
 
           {/* Invitation Cards */}
-          {invitations.sort((a, b) => {
-            const dateA = new Date(a.updated_at || a.created_at || 0).getTime();
-            const dateB = new Date(b.updated_at || b.created_at || 0).getTime();
-            return dateB - dateA;
-          }).map((invite) => {
-          
-
-            return (
+          {invitations
+            .sort((a, b) => {
+              const dateA = new Date(a.updated_at || a.created_at || 0).getTime();
+              const dateB = new Date(b.updated_at || b.created_at || 0).getTime();
+              return dateB - dateA;
+            })
+            .map((invite) => (
               <motion.div
                 key={invite.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
+                variants={itemVariants}
                 onClick={() => handleInvitationClick(invite)}
-                className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md cursor-pointer group relative overflow-hidden"
+                className="group bg-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 border"
+                style={{ 
+                  borderColor: 'var(--color-border)',
+                  transform: 'translateY(0)'
+                }}
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-violet-100 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110" />
-                
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-violet-600 bg-violet-50 px-2 py-1 rounded-md">
-                      {invite.events?.length || 0} Events
-                    </span>
-                    <Settings 
-                      className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors cursor-pointer" 
-                      onClick={(e) => handleSettingsClick(e, invite.id)}
-                    />
+                {/* Card Cover */}
+                <div className="relative h-40 overflow-hidden"
+                  style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%)' }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Calendar className="w-16 h-16 text-white/30" />
                   </div>
-  
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{invite.invitation_title}</h3>
-                  <p className="text-sm text-gray-500 mb-6">Hosted by {invite.hostName}</p>
-  
-                  <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-xl">
-                    <Calendar className="w-4 h-4" />
-                    {invite.events?.length > 0 
-                      ? `Next: ${invite.events[0].date}`
-                      : 'No events scheduled'}
+                  {/* Status Badge */}
+                  <div className="absolute top-3 right-3">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white">
+                      {invite.status || 'Active'}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Card Content */}
+                <div className="p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-lg font-semibold truncate pr-2" style={{ color: 'var(--color-text-heading)', fontFamily: 'var(--font-display)' }}>
+                      {invite.invitation_title}
+                    </h3>
+                    <button 
+                      className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all flex-shrink-0"
+                      onClick={(e) => handleSettingsClick(e, invite.id)}
+                      style={{ backgroundColor: 'var(--color-bg-section-alt)' }}
+                    >
+                      <Settings className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-body)' }}>
+                      <Calendar className="w-4 h-4" style={{ color: 'var(--color-accent-primary)' }} />
+                      <span>{invite.events && invite.events.length > 0 ? `${invite.events.length} event${invite.events.length > 1 ? 's' : ''}` : 'No events set'}</span>
+                    </div>
+                    {invite.events && invite.events[0]?.location && (
+                      <div className="flex items-center gap-2 text-sm truncate" style={{ color: 'var(--color-text-muted)' }}>
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="truncate">{invite.events[0].location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between" style={{ borderColor: 'var(--color-border)' }}>
+                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                      {new Date(invite.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                    <div className="flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--color-accent-primary)' }}>
+                      Manage
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
                 </div>
               </motion.div>
-            );
-          })}
-        </div>
+            ))}
+        </motion.div>
+
+        {/* Empty State */}
+        {!loading && invitations.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-20"
+          >
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-section-alt)' }}>
+              <Sparkles className="w-12 h-12" style={{ color: 'var(--color-accent-secondary)' }} />
+            </div>
+            <h3 className="text-xl font-semibold mb-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>No invitations yet</h3>
+            <p className="mb-6" style={{ color: 'var(--color-text-body)' }}>Create your first invitation to get started</p>
+            <button
+              onClick={onCreateNew}
+              className="px-6 py-3 rounded-xl font-medium text-sm shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2"
+              style={{ 
+                backgroundColor: 'var(--color-accent-primary)', 
+                color: 'var(--color-text-white)' 
+              }}
+            >
+              <Plus className="w-5 h-5" />
+              Create Invitation
+            </button>
+          </motion.div>
+        )}
       </main>
     </div>
   );

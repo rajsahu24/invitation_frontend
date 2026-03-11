@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header, sidebar, main, rightPanel }) => {
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-pink-50 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       {/* Header */}
       <div className="sticky top-0 z-50">
         {header}

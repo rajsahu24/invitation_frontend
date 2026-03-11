@@ -10,12 +10,12 @@ interface Blogprops {
 function Blog({ blog }: Blogprops) {
   const getColorFromTitle = (title: string) => {
     const colors = [
-      'bg-gradient-to-br from-violet-500 to-purple-600',
-      'bg-gradient-to-br from-blue-500 to-indigo-600',
-      'bg-gradient-to-br from-pink-500 to-rose-600',
-      'bg-gradient-to-br from-green-500 to-emerald-600',
-      'bg-gradient-to-br from-orange-500 to-amber-600',
-      'bg-gradient-to-br from-cyan-500 to-teal-600',
+      { from: '#4A7C59', to: '#3a6347' },
+      { from: '#7BAE7F', to: '#4A7C59' },
+      { from: '#E07B5A', to: '#c4674a' },
+      { from: '#4A7C59', to: '#7BAE7F' },
+      { from: '#4A7C59', to: '#2d4a36' },
+      { from: '#7BAE7F', to: '#5a9a5f' },
     ];
     const index = title.charCodeAt(0) % colors.length;
     return colors[index];
@@ -44,7 +44,7 @@ function Blog({ blog }: Blogprops) {
         </div>
       );
     } catch (error) {
-      return <div className="text-slate-600">{blog.content}</div>;
+      return <div style={{ color: 'var(--color-text-body)' }}>{blog.content}</div>;
     }
   };
 
@@ -54,7 +54,9 @@ function Blog({ blog }: Blogprops) {
     switch (node.type) {
       case 'paragraph':
         return (
-          <p className="mb-4 text-lg leading-relaxed text-gray-800">
+          <p className="mb-4 text-lg leading-relaxed"
+            style={{ color: 'var(--color-text-body)', fontFamily: 'var(--font-body)' }}
+          >
             {node.children?.map((child: any, i: number) => (
               <React.Fragment key={`p-${i}`}>{renderNode(child)}</React.Fragment>
             ))}
@@ -64,14 +66,20 @@ function Blog({ blog }: Blogprops) {
       case 'heading':
         const headingTag = node.tag || 'h2';
         const headingClasses: Record<string, string> = {
-          h1: 'text-4xl font-bold mb-6 mt-8 text-gray-900',
-          h2: 'text-3xl font-bold mb-4 mt-6 text-gray-900',
-          h3: 'text-2xl font-semibold mb-3 mt-5 text-gray-900',
+          h1: 'text-4xl font-bold mb-6 mt-8',
+          h2: 'text-3xl font-bold mb-4 mt-6',
+          h3: 'text-2xl font-semibold mb-3 mt-5',
+        };
+        const headingStyle: Record<string, React.CSSProperties> = {
+          h1: { color: 'var(--color-text-heading)', fontFamily: 'var(--font-display)' },
+          h2: { color: 'var(--color-text-heading)', fontFamily: 'var(--font-display)' },
+          h3: { color: 'var(--color-text-heading)', fontFamily: 'var(--font-display)' },
         };
         const headingClass = headingClasses[headingTag] || headingClasses.h2;
+        const headingStyleObj = headingStyle[headingTag] || headingStyle.h2;
         if (headingTag === 'h1') {
           return (
-            <h1 className={headingClass}>
+            <h1 className={headingClass} style={headingStyleObj}>
               {node.children?.map((child: any, i: number) => (
                 <React.Fragment key={`h1-${i}`}>{renderNode(child)}</React.Fragment>
               ))}
@@ -79,7 +87,7 @@ function Blog({ blog }: Blogprops) {
           );
         } else if (headingTag === 'h3') {
           return (
-            <h3 className={headingClass}>
+            <h3 className={headingClass} style={headingStyleObj}>
               {node.children?.map((child: any, i: number) => (
                 <React.Fragment key={`h3-${i}`}>{renderNode(child)}</React.Fragment>
               ))}
@@ -87,7 +95,7 @@ function Blog({ blog }: Blogprops) {
           );
         }
         return (
-          <h2 className={headingClass}>
+          <h2 className={headingClass} style={headingStyleObj}>
             {node.children?.map((child: any, i: number) => (
               <React.Fragment key={`h2-${i}`}>{renderNode(child)}</React.Fragment>
             ))}
@@ -96,7 +104,10 @@ function Blog({ blog }: Blogprops) {
       
       case 'quote':
         return (
-          <blockquote className="border-l-4 border-purple-500 pl-4 my-4 italic text-gray-600 text-lg">
+          <blockquote 
+            className="border-l-4 pl-4 my-4 italic text-lg"
+            style={{ borderColor: 'var(--color-accent-primary)', color: 'var(--color-text-body)' }}
+          >
             {node.children?.map((child: any, i: number) => (
               <React.Fragment key={`quote-${i}`}>{renderNode(child)}</React.Fragment>
             ))}
@@ -105,9 +116,9 @@ function Blog({ blog }: Blogprops) {
       
       case 'list':
         const ListTag = node.listType === 'number' ? 'ol' : 'ul';
-        const listClass = node.listType === 'number' ? 'list-decimal ml-6 mb-4 text-gray-600' : 'list-disc ml-6 mb-4 text-gray-600';
+        const listClass = node.listType === 'number' ? 'list-decimal ml-6 mb-4' : 'list-disc ml-6 mb-4';
         return (
-          <ListTag className={listClass}>
+          <ListTag className={listClass} style={{ color: 'var(--color-text-body)', fontFamily: 'var(--font-body)' }}>
             {node.children?.map((child: any, i: number) => (
               <React.Fragment key={`list-${i}`}>{renderNode(child)}</React.Fragment>
             ))}
@@ -136,7 +147,13 @@ function Blog({ blog }: Blogprops) {
       
       case 'link':
         return (
-          <a href={node.url} className="text-purple-600 underline hover:text-purple-800" target="_blank" rel="noopener noreferrer">
+          <a 
+            href={node.url} 
+            className="underline hover:opacity-80" 
+            style={{ color: 'var(--color-accent-primary)' }} 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
             {node.children?.map((child: any, i: number) => (
               <React.Fragment key={`link-${i}`}>{renderNode(child)}</React.Fragment>
             ))}
@@ -174,20 +191,24 @@ function Blog({ blog }: Blogprops) {
   };
 
   return (
-    <div className="min-h-screen bg-white pt-20">
+    <div className="min-h-screen pt-20" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       {/* Header */}
-      <div className="bg-gradient-to-b from-slate-50 to-white border-b border-gray-100">
+      <div className="border-b" style={{ backgroundColor: 'var(--color-bg-primary)', borderColor: 'var(--color-border)' }}>
         <div className="max-w-4xl mx-auto px-6 py-8">
-          <Link href="/blog" className="inline-flex items-center gap-2 text-slate-600 hover:text-violet-600 mb-6 transition-colors">
+          <Link href="/blog" className="inline-flex items-center gap-2 mb-6 transition-colors hover:opacity-80"
+            style={{ color: 'var(--color-accent-primary)' }}
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Blog</span>
+            <span style={{ fontFamily: 'var(--font-body)' }}>Back to Blog</span>
           </Link>
           
-          <h1 className="text-5xl font-black text-slate-900 mb-4 leading-tight">
+          <h1 className="text-5xl font-bold mb-4 leading-tight"
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}
+          >
             {blog.title}
           </h1>
           
-          <div className="flex items-center gap-4 text-slate-600">
+          <div className="flex items-center gap-4" style={{ color: 'var(--color-text-body)', fontFamily: 'var(--font-body)' }}>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <span>{formatDate(blog.created_at)}</span>
@@ -206,8 +227,11 @@ function Blog({ blog }: Blogprops) {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className={`w-full h-full flex items-center justify-center ${getColorFromTitle(blog.title)}`}>
-              <span className="text-9xl font-black text-white">
+            <div 
+              className="w-full h-full flex items-center justify-center"
+              style={{ background: `linear-gradient(to bottom right, ${getColorFromTitle(blog.title).from}, ${getColorFromTitle(blog.title).to})` }}
+            >
+              <span className="text-9xl font-bold text-white" style={{ fontFamily: 'var(--font-display)' }}>
                 {blog.title.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -216,7 +240,7 @@ function Blog({ blog }: Blogprops) {
       </div>
 
       {/* Content */}
-      <article className="max-w-4xl mx-auto px-6 pb-20">
+      <article className="max-w-4xl mx-auto px-6 pb-20" style={{ fontFamily: 'var(--font-body)' }}>
         {renderContent()}
       </article>
     </div>

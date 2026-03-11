@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 export default function SocialProofBar() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -13,7 +13,7 @@ export default function SocialProofBar() {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (sectionRef.current) {
@@ -27,19 +27,19 @@ export default function SocialProofBar() {
     <section
       ref={sectionRef}
       className={`py-10 transition-all duration-700 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
-      style={{ backgroundColor: 'var(--color-bg-primary)' }}
+      style={{ backgroundColor: "var(--color-bg-primary)" }}
     >
       <div className="container-landing text-center">
         {/* Heading */}
         <h2
           className="mb-4"
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(22px, 4vw, 28px)',
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(22px, 4vw, 28px)",
             fontWeight: 700,
-            color: 'var(--color-text-heading)',
+            color: "var(--color-text-heading)",
           }}
         >
           Loved by Thousands of Families
@@ -64,10 +64,10 @@ export default function SocialProofBar() {
         {/* Count text */}
         <p
           style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '13px',
+            fontFamily: "var(--font-body)",
+            fontSize: "13px",
             fontWeight: 400,
-            color: 'var(--color-text-muted)',
+            color: "var(--color-text-muted)",
           }}
         >
           4,823 families shared and printed their moments
@@ -77,15 +77,16 @@ export default function SocialProofBar() {
         <div className="hidden md:flex justify-center items-center gap-8 mt-6">
           <span
             className="w-1 h-1 rounded-full"
-            style={{ backgroundColor: 'var(--color-border)' }}
+            style={{ backgroundColor: "var(--color-border)" }}
+          />
+
+          <span
+            className="w-1 h-1 rounded-full"
+            style={{ backgroundColor: "var(--color-border)" }}
           />
           <span
             className="w-1 h-1 rounded-full"
-            style={{ backgroundColor: 'var(--color-border)' }}
-          />
-          <span
-            className="w-1 h-1 rounded-full"
-            style={{ backgroundColor: 'var(--color-border)' }}
+            style={{ backgroundColor: "var(--color-border)" }}
           />
         </div>
       </div>

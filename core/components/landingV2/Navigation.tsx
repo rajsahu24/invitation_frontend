@@ -1,20 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import SVGComponent from './HomeLogo'
+import { useHostStore } from '@/lib/store';
+import { useRouter } from 'next/navigation';
+
 
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Templates', href: '/templates' },
   { name: 'Blog', href: '/blog' },
   { name: 'About', href: '/about-us' },
-
+  {name:'FAQ',href:'/faq'}
 ];
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout } = useHostStore();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,43 +45,20 @@ export default function Navigation() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 h-20 ${
         scrolled
           ? 'bg-[--color-bg-primary]/95 backdrop-blur-[12px] border-b border-[--color-border]'
           : 'bg-[--color-bg-primary]'
       }`}
-      style={{
-        height: '68px',
-      }}
+
     >
       <div className="container-landing h-full">
-        <div className="flex items-center justify-between h-full">
+        <div className="flex items-center justify-between h-full ">
           {/* LEFT — Logo */}
           <Link href="/" className="flex items-center gap-2">
-            {/* Leaf SVG Icon */}
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5"
-            >
-              <path
-                d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
-                fill="#4A7C59"
-              />
-              <path
-                d="M12 21C12 21 7 17 7 12C7 8.5 9 6 12 6C15 6 17 8.5 17 12C17 17 12 21 12 21Z"
-                fill="#7BAE7F"
-              />
-              <path
-                d="M12 6V16M12 16C13.5 14 15 12 17 12M12 16C10.5 14 9 12 7 12"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            {/* Leaf SVG Icon */}            
+            {/* <Image width={500} height={500} className="h-13 mt-2 -ml-10 sm:ml-auto  lg:h-16    w-auto"  src="/homelogo.svg" alt="home logo" /> */}
+            <SVGComponent />
             <span
               className="text-xl font-bold"
               style={{
@@ -102,26 +86,60 @@ export default function Navigation() {
 
           {/* RIGHT — Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-5 py-2 text-sm font-medium rounded-[50px] transition-all duration-200"
-              style={{
-                border: '1.5px solid var(--color-accent-primary)',
-                color: 'var(--color-accent-primary)',
-              }}
-            >
-              Log In
-            </Link>
-            <Link
-              href="/login"
-              className="px-5 py-2 text-sm font-medium rounded-[50px] transition-all duration-200 hover:bg-[#3a6347]"
-              style={{
-                backgroundColor: 'var(--color-accent-primary)',
-                color: 'var(--color-text-white)',
-              }}
-            >
-              Get Started
-            </Link>
+            {user ? (
+              // Logged in state - show Dashboard and Sign Out
+              <>
+                <Link
+                  href="/host"
+                  className="px-5 py-2 text-sm font-medium rounded-[50px] transition-all duration-200 flex items-center gap-2"
+                  style={{
+                    border: '1.5px solid var(--color-accent-primary)',
+                    color: 'var(--color-accent-primary)',
+                  }}
+                >
+                  <User className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    router.push('/');
+                  }}
+                  className="px-5 py-2 text-sm font-medium rounded-[50px] transition-all duration-200 flex items-center gap-2"
+                  style={{
+                    backgroundColor: 'var(--color-text-body)',
+                    color: 'var(--color-text-white)',
+                  }}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              // Not logged in - show Log In and Get Started
+              <>
+                <Link
+                  href="/login"
+                  className="px-5 py-2 text-sm font-medium rounded-[50px] transition-all duration-200"
+                  style={{
+                    border: '1.5px solid var(--color-accent-primary)',
+                    color: 'var(--color-accent-primary)',
+                  }}
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/login"
+                  className="px-5 py-2 text-sm font-medium rounded-[50px] transition-all duration-200 hover:bg-[#3a6347]"
+                  style={{
+                    backgroundColor: 'var(--color-accent-primary)',
+                    color: 'var(--color-text-white)',
+                  }}
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile hamburger button (< 768px) */}
@@ -139,8 +157,13 @@ export default function Navigation() {
       {/* Mobile Navigation Drawer */}
       {isOpen && (
         <div
-          className="md:hidden absolute top-[68px] left-0 right-0 bg-[--color-bg-primary] border-b border-[--color-border] shadow-lg"
-          style={{ maxHeight: 'calc(100vh - 68px)', overflowY: 'auto' }}
+          className="md:hidden absolute top-[68px] left-0  right-0 border-b border-[--color-border] shadow-lg"
+          style={{ 
+            maxHeight: 'calc(100vh - 80px)', 
+            overflowY: 'auto',
+            backgroundColor: '#F7F5F0',
+            zIndex: 999
+          }}
         >
           <div className="px-6 py-4">
             {navLinks.map((link) => (
@@ -155,28 +178,64 @@ export default function Navigation() {
               </a>
             ))}
             <div className="pt-6 pb-4 flex flex-col gap-3">
-              <Link
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="block text-center px-5 py-3 text-sm font-medium rounded-[50px] transition-all duration-200"
-                style={{
-                  border: '1.5px solid var(--color-accent-primary)',
-                  color: 'var(--color-accent-primary)',
-                }}
-              >
-                Log In
-              </Link>
-              <Link
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="block text-center px-5 py-3 text-sm font-medium rounded-[50px] transition-all duration-200 hover:bg-[#3a6347]"
-                style={{
-                  backgroundColor: 'var(--color-accent-primary)',
-                  color: 'var(--color-text-white)',
-                }}
-              >
-                Get Started
-              </Link>
+              {user ? (
+                // Logged in state - show Dashboard and Sign Out
+                <>
+                  <Link
+                    href="/host"
+                    onClick={() => setIsOpen(false)}
+                    className="block text-center px-5 py-3 text-sm font-medium rounded-[50px] transition-all duration-200 flex items-center justify-center gap-2"
+                    style={{
+                      border: '1.5px solid var(--color-accent-primary)',
+                      color: 'var(--color-accent-primary)',
+                    }}
+                  >
+                    <User className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      setIsOpen(false);
+                      router.push('/');
+                    }}
+                    className="block text-center px-5 py-3 text-sm font-medium rounded-[50px] transition-all duration-200 flex items-center justify-center gap-2"
+                    style={{
+                      backgroundColor: 'var(--color-text-body)',
+                      color: 'var(--color-text-white)',
+                    }}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                // Not logged in - show Log In and Get Started
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="block text-center px-5 py-3 text-sm font-medium rounded-[50px] transition-all duration-200"
+                    style={{
+                      border: '1.5px solid var(--color-accent-primary)',
+                      color: 'var(--color-accent-primary)',
+                    }}
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="block text-center px-5 py-3 text-sm font-medium rounded-[50px] transition-all duration-200 hover:bg-[#3a6347]"
+                    style={{
+                      backgroundColor: 'var(--color-accent-primary)',
+                      color: 'var(--color-text-white)',
+                    }}
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

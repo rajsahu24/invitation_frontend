@@ -123,16 +123,17 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
             </div>
 
             {/* Categories */}
-            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex gap-2 overflow-x-auto scrollbar-none">
+            <div className="px-6 py-4 border-b flex gap-2 overflow-x-auto scrollbar-none" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-section-alt)' }}>
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${
-                    category === cat
-                      ? 'bg-violet-600 text-white shadow-md shadow-violet-200'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                  }`}
+                  className="px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap"
+                  style={{ 
+                    backgroundColor: category === cat ? 'var(--color-accent-primary)' : 'var(--color-card-bg)',
+                    color: category === cat ? 'var(--color-text-white)' : 'var(--color-text-body)',
+                    border: category === cat ? 'none' : '1px solid var(--color-border)'
+                  }}
                 >
                   {cat}
                 </button>
@@ -140,10 +141,10 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
             </div>
 
             {/* Grid */}
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar" style={{ backgroundColor: 'var(--color-bg-section-alt)' }}>
               {loading ? (
                 <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--color-accent-primary)' }}></div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -157,9 +158,12 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                      onClick={() => handleTemplateSelect(template)}
                      className={`group cursor-pointer bg-white rounded-2xl overflow-hidden border-2 transition-all shadow-sm hover:shadow-xl ${
                        currentTemplateId === template.id
-                         ? 'border-violet-500 ring-4 ring-violet-50/50'
-                         : 'border-transparent hover:border-gray-200'
+                         ? 'border'
+                         : 'border-transparent hover:border'
                      }`}
+                     style={{
+                        borderColor: currentTemplateId === template.id ? 'var(--color-accent-primary)' : 'var(--color-border)',
+                     }}
                    >
                      <div className="aspect-[3/4] bg-gray-100 relative overflow-hidden">
                         <iframe
@@ -171,7 +175,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                        
                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                           {currentTemplateId === template.id ? (
-                              <div className="bg-violet-600 text-white px-4 py-2 rounded-full font-medium flex items-center gap-2 shadow-lg scale-105">
+                              <div className="text-white px-4 py-2 rounded-full font-medium flex items-center gap-2 shadow-lg scale-105" style={{backgroundColor: 'var(--color-accent-primary)'}}>
                                   <Check className="w-4 h-4" /> Selected
                               </div>
                           ) : (
@@ -182,7 +186,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                        </div>
  
                        {currentTemplateId === template.id && (
-                         <div className="absolute top-3 right-3 w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center shadow-lg z-10">
+                         <div className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center shadow-lg z-10" style={{backgroundColor: 'var(--color-accent-primary)'}}>
                            <Check className="w-4 h-4 text-white" />
                          </div>
                        )}

@@ -67,7 +67,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="w-full py-20 bg-gradient-to-b from-purple-50 to-white">
+    <section className="w-full py-20" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       <div className="max-w-4xl mx-auto px-6">
         
         {/* Heading */}
@@ -88,7 +88,8 @@ export default function FAQSection() {
             return (
               <div
                 key={index}
-                className="bg-white border border-purple-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
+                className="bg-white border shadow-sm hover:shadow-md transition-all duration-300"
+              style={{ borderColor: 'var(--color-border)' }}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
@@ -101,7 +102,7 @@ export default function FAQSection() {
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ChevronDown className="text-purple-500" size={22} />
+                    <ChevronDown size={22} style={{ color: 'var(--color-accent-primary)' }} />
                   </motion.div>
                 </button>
 

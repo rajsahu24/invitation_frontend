@@ -91,17 +91,18 @@ const getStatusColor = (status: number) => {
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full max-h-[600px]">
-      <div className="p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+    <div className="bg-white rounded-3xl shadow-sm border overflow-hidden flex flex-col h-full max-h-[600px]" style={{ borderColor: 'var(--color-border)' }}>
+      <div className="p-4 border-b bg-white sticky top-0 z-10" style={{ borderColor: 'var(--color-border)' }}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-violet-500" />
+          <h3 className="font-bold flex items-center gap-2" style={{ color: 'var(--color-text-heading)' }}>
+            <Users className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} />
             Guest List
-            <span className="text-sm font-normal text-gray-500 ml-1">({guests.length})</span>
+            <span className="text-sm font-normal ml-1" style={{ color: 'var(--color-text-muted)' }}>({guests.length})</span>
           </h3>
           <button 
             onClick={onAddGuest}
-            className="p-2 bg-violet-100 text-violet-600 rounded-xl hover:bg-violet-200 transition-colors"
+            className="p-2 rounded-xl transition-colors"
+            style={{ backgroundColor: 'var(--color-bg-section-alt)', color: 'var(--color-accent-primary)' }}
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -109,13 +110,18 @@ const getStatusColor = (status: number) => {
 
         {/* Search */}
         <div className="relative mb-3">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
           <input 
             type="text" 
             placeholder="Search guests..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:border-violet-500 outline-none transition-all text-gray-950"
+            className="w-full pl-9 pr-4 py-2 text-sm border rounded-xl outline-none transition-all"
+            style={{ 
+                backgroundColor: 'var(--color-bg-section-alt)', 
+                borderColor: 'var(--color-border)', 
+                color: 'var(--color-text-heading)' 
+            }}
           />
         </div>
 
@@ -125,11 +131,11 @@ const getStatusColor = (status: number) => {
             <button
               key={f}
               onClick={() => setFilter(f as any)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                filter === f 
-                  ? 'bg-violet-600 text-white' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
+              style={{ 
+                  backgroundColor: filter === f ? 'var(--color-accent-primary)' : 'var(--color-bg-section-alt)',
+                  color: filter === f ? 'var(--color-text-white)' : 'var(--color-text-body)'
+              }}
             >
               {f}
             </button>
@@ -139,7 +145,7 @@ const getStatusColor = (status: number) => {
 
       <div className="overflow-y-auto flex-1 p-2 space-y-2 custom-scrollbar">
         {filteredGuests.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
             <p className="text-sm">No guests found</p>
           </div>
         ) : (
@@ -147,14 +153,16 @@ const getStatusColor = (status: number) => {
             {filteredGuests.map((guest) => (
               <div 
                 key={guest.id}
-                className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors group border border-transparent hover:border-violet-100"
+                className="flex items-center gap-3 p-3 rounded-xl transition-colors group border border-transparent"
+                style={{ backgroundColor: 'var(--color-bg-section-alt)' }}
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-100 to-pink-100 flex items-center justify-center flex-shrink-0 text-violet-600 font-semibold">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold"
+                    style={{ backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-accent-primary)' }}>
                   {guest.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{guest.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{guest.phone}</p>
+                  <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-text-heading)' }}>{guest.name}</p>
+                  <p className="text-xs truncate" style={{ color: 'var(--color-text-muted)' }}>{guest.phone}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {guest.phone && (

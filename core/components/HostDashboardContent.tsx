@@ -341,22 +341,23 @@ function HostDashboardContent({
 
 
   const Header = (
-    <div className="bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm">
+    <div className="bg-white/80 backdrop-blur-sm border-b shadow-sm" style={{ borderColor: 'var(--color-border)' }}>
         <div className="max-w-[1920px] mx-auto px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-4">
               <Link 
                 href={'/host'}
-                className="p-2 hover:bg-violet-100 rounded-xl text-violet-600 transition-colors"
+                className="p-2 rounded-xl transition-colors"
+                style={{ backgroundColor: 'var(--color-bg-section-alt)', color: 'var(--color-accent-primary)' }}
               >
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%)' }}>
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-base sm:text-lg font-bold text-gray-900">Invitation Editor</h1>
-                <p className="text-xs text-gray-600 truncate max-w-[150px] sm:max-w-none">{invitationDetails?.invitation_title || "My Event"}</p>
+                <h1 className="text-base sm:text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>Invitation Editor</h1>
+                <p className="text-xs truncate max-w-[150px] sm:max-w-none" style={{ color: 'var(--color-text-body)' }}>{invitationDetails?.invitation_title || "My Event"}</p>
               </div>
             </div>
           </div>
@@ -366,10 +367,11 @@ function HostDashboardContent({
 
   const Sidebar = (
     <>
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 mb-4">
+      <div className="bg-white rounded-3xl shadow-sm border p-4 mb-4" style={{ borderColor: 'var(--color-border)' }}>
         <button
           onClick={() => setShowTemplateModal(true)}
-          className="w-full flex items-center justify-between p-3 bg-gradient-to-br from-violet-500 to-pink-500 rounded-xl text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all group"
+          className="w-full flex items-center justify-between p-3 rounded-xl text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all group"
+          style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%)' }}
         >
           <div className="flex items-center gap-3">
              <div className="p-2 bg-white/20 rounded-lg">
@@ -386,10 +388,10 @@ function HostDashboardContent({
         </button>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 mb-4">
+      <div className="bg-white rounded-3xl shadow-sm border p-4 mb-4" style={{ borderColor: 'var(--color-border)' }}>
         <div className="flex items-center gap-2 mb-3">
-          <Link2 className="w-4 h-4 text-violet-600" />
-          <h3 className="text-sm font-bold text-gray-900">Invitation URL</h3>
+          <Link2 className="w-4 h-4" style={{ color: 'var(--color-accent-primary)' }} />
+          <h3 className="text-sm font-bold" style={{ color: 'var(--color-text-heading)' }}>Invitation URL</h3>
         </div>
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row gap-2">
@@ -399,13 +401,22 @@ function HostDashboardContent({
                   type="text"
                   value={editedSlug}
                   onChange={(e) => setEditedSlug(e.target.value)}
-                  className="flex-1 px-3 py-2 text-xs sm:text-sm border border-violet-300 rounded-lg bg-violet-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="flex-1 px-3 py-2 text-xs sm:text-sm border rounded-lg focus:outline-none focus:ring-2"
+                  style={{ 
+                    borderColor: 'var(--color-accent-primary)', 
+                    backgroundColor: 'var(--color-bg-section-alt)', 
+                    color: 'var(--color-text-body)'
+                  }}
                   placeholder="Enter custom URL slug"
                 />
                 <button
                   onClick={handleSaveSlug}
                   disabled={slugUpdateLoading}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all shadow-sm hover:shadow-md whitespace-nowrap disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow-md whitespace-nowrap disabled:opacity-50"
+                  style={{ 
+                    backgroundColor: 'var(--color-accent-primary)', 
+                    color: 'var(--color-text-white)' 
+                  }}
                 >
                   {slugUpdateLoading ? (
                     <span className="text-sm font-medium">Saving...</span>
@@ -418,7 +429,11 @@ function HostDashboardContent({
                 </button>
                 <button
                   onClick={handleCancelEditSlug}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all shadow-sm whitespace-nowrap"
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
+                  style={{ 
+                    backgroundColor: 'var(--color-bg-section-alt)', 
+                    color: 'var(--color-text-body)' 
+                  }}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -429,11 +444,20 @@ function HostDashboardContent({
                   type="text"
                   value={invitation_share_url}
                   readOnly
-                  className="flex-1 px-3 py-2 text-xs sm:text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 truncate"
+                  className="flex-1 px-3 py-2 text-xs sm:text-sm border rounded-lg truncate"
+                  style={{ 
+                    borderColor: 'var(--color-border)', 
+                    backgroundColor: 'var(--color-bg-section-alt)', 
+                    color: 'var(--color-text-body)' 
+                  }}
                 />
                 <button
                   onClick={handleCopyUrl}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all shadow-sm hover:shadow-md whitespace-nowrap"
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow-md whitespace-nowrap"
+                  style={{ 
+                    backgroundColor: 'var(--color-accent-primary)', 
+                    color: 'var(--color-text-white)' 
+                  }}
                 >
                   {copiedUrl ? (
                     <>
@@ -449,7 +473,11 @@ function HostDashboardContent({
                 </button>
                 <button
                   onClick={handleStartEditSlug}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all shadow-sm whitespace-nowrap"
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
+                  style={{ 
+                    backgroundColor: 'var(--color-bg-section-alt)', 
+                    color: 'var(--color-text-body)' 
+                  }}
                 >
                   <Edit className="w-4 h-4" />
                 </button>
@@ -457,32 +485,18 @@ function HostDashboardContent({
             )}
           </div>
           {slugUpdateSuccess && (
-            <p className="text-xs text-green-600 flex items-center gap-1">
+            <p className="text-xs flex items-center gap-1" style={{ color: 'var(--color-accent-secondary)' }}>
               <Check className="w-3 h-3" />
               URL updated successfully!
             </p>
           )}
           {slugUpdateError && (
-            <p className="text-xs text-red-600 flex items-center gap-1">
+            <p className="text-xs flex items-center gap-1" style={{ color: '#E07B5A' }}>
               <X className="w-3 h-3" />
               {slugUpdateError}
             </p>
           )}
-         (
-            <div className="space-y-1">
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <Check className="w-3 h-3" />
-                Building URL: /{invitation_share_url}
-              </p>
-              {realTimePreviewData?.slugError && (
-                <p className="text-xs text-red-600 flex items-center gap-1">
-                  <X className="w-3 h-3" />
-                  {realTimePreviewData.slugError}
-                </p>
-              )}
-            </div>
-          ) 
-          <p className="text-xs text-gray-500">Share this URL with your guests to view the invitation</p>
+          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Share this URL with your guests to view the invitation</p>
         </div>
       </div>
 
@@ -519,9 +533,9 @@ function HostDashboardContent({
   }, [localSections]);
     
   const Main = (
-    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-white/20 overflow-hidden flex flex-col min-h-[400px] sm:min-h-[600px]">
+    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden flex flex-col min-h-[400px] sm:min-h-[600px]" style={{ borderColor: 'var(--color-border)' }}>
         
-        <div className="relative border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
+        <div className="relative border-b flex-shrink-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-section-alt)' }}>
             <div className="flex overflow-x-auto custom-scrollbar-h scroll-smooth">
                 {tabs.map((tab) => (
                     <button
@@ -529,9 +543,13 @@ function HostDashboardContent({
                         onClick={() => setActiveTab(tab.label)}
                         className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                         activeTab === tab.label
-                            ? "text-violet-600 bg-white border-b-2 border-violet-600 shadow-sm"
-                            : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                            ? "bg-white shadow-sm"
+                            : "hover:bg-white/50"
                         }`}
+                        style={{
+                            color: activeTab === tab.label ? 'var(--color-accent-primary)' : 'var(--color-text-muted)',
+                            borderBottom: activeTab === tab.label ? '2px solid var(--color-accent-primary)' : '2px solid transparent'
+                        }}
                     >
                         <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="hidden sm:inline">{tab.label.replace("_"," ").toUpperCase()}</span>
@@ -541,8 +559,8 @@ function HostDashboardContent({
             </div>
             
             {/* Scroll Indicator Gradients */}
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50/50 to-transparent pointer-events-none lg:hidden" />
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50/50 to-transparent pointer-events-none lg:hidden" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l to-transparent pointer-events-none lg:hidden" style={{ background: 'linear-gradient(to left, var(--color-bg-section-alt), transparent)' }} />
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r to-transparent pointer-events-none lg:hidden" style={{ background: 'linear-gradient(to right, var(--color-bg-section-alt), transparent)' }} />
         </div>
 
         <div className="p-3 sm:p-6 overflow-y-auto flex-1 h-full">
@@ -662,7 +680,11 @@ function HostDashboardContent({
                                 console.log("Button clicked!");
                                 handleAddGuest();
                             }}
-                            className="flex-1 py-2.5 sm:py-3 text-sm sm:text-base bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700"
+                            className="flex-1 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl font-semibold"
+                            style={{ 
+                                backgroundColor: 'var(--color-accent-primary)', 
+                                color: 'var(--color-text-white)' 
+                            }}
                         >
                             Add Guest
                         </button>

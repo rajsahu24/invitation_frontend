@@ -67,12 +67,12 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-14">
+    <div className="min-h-screen py-14" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="border-b" style={{ backgroundColor: 'var(--color-bg-primary)', borderColor: 'var(--color-border)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Choose Your Template</h1>
-          <p className="text-gray-600">Select a beautiful template to create your invitation</p>
+          <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>Choose Your Template</h1>
+          <p className="" style={{ color: 'var(--color-text-body)' }}>Select a beautiful template to create your invitation</p>
         </div>
       </div>
 
@@ -84,7 +84,13 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
             placeholder="Search templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="w-full px-4 py-3 rounded-lg border outline-none transition"
+            style={{ 
+              borderColor: 'var(--color-border)', 
+              backgroundColor: 'var(--color-card-bg)',
+              color: 'var(--color-text-body)',
+              fontFamily: 'var(--font-body)'
+            }}
           />
           
           <div className="flex gap-2 flex-wrap">
@@ -95,34 +101,45 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
                 
                 className={`px-4 py-2 rounded-full text-sm font-medium transition ${
                   selectedCategory === category
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                    ? 'text-white'
+                    : ''
                 }`}
+                style={{ 
+                  backgroundColor: selectedCategory === category ? 'var(--color-accent-primary)' : 'var(--color-card-bg)',
+                  color: selectedCategory === category ? 'var(--color-text-white)' : 'var(--color-text-body)',
+                  border: selectedCategory === category ? 'none' : '1px solid var(--color-border)',
+                  fontFamily: 'var(--font-body)'
+                }}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </button>
             ))}
           </div>
         </div>
-
+        
         {/* Templates Grid */}
         {filteredTemplates.length === 0 ? (
           <div className="text-center py-16">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--color-text-muted)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No templates found</h3>
-            <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter.</p>
+            <h3 className="mt-2 text-sm font-medium" style={{ color: 'var(--color-text-heading)', fontFamily: 'var(--font-body)' }}>No templates found</h3>
+            <p className="mt-1 text-sm" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Try adjusting your search or filter.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredTemplates.map((template) => (
               <div
                 key={template.id}
-                className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-200"
+                className="group rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
+                style={{ 
+                  backgroundColor: 'var(--color-card-bg)', 
+                  border: '1px solid var(--color-border)',
+                  fontFamily: 'var(--font-body)'
+                }}
                 onClick={()=> handleTemplateClick(template)}
               >
-                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+                <div className="relative aspect-[3/4] overflow-hidden" style={{ backgroundColor: 'var(--color-bg-section-alt)' }}>
                   <img
                     src={template.thumbnail || template.template_image || '/placeholder-template.jpg'}
                     alt={template.template_name}
@@ -134,14 +151,19 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <button className="w-full bg-white text-gray-900 py-2 px-4 rounded-lg font-medium hover:bg-gray-100 transition">
+                    <button className="w-full py-2 px-4 rounded-lg font-medium transition"
+                      style={{ 
+                        backgroundColor: 'var(--color-accent-primary)', 
+                        color: 'var(--color-text-white)' 
+                      }}
+                    >
                       Use Template
                     </button>
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{template.template_name}</h3>
-                  <p className="text-sm text-gray-500 capitalize">{template.template_type}</p>
+                  <h3 className="font-semibold mb-1 line-clamp-1" style={{ color: 'var(--color-text-heading)' }}>{template.template_name}</h3>
+                  <p className="text-sm capitalize" style={{ color: 'var(--color-text-body)' }}>{template.template_type}</p>
                 </div>
               </div>
             ))}
