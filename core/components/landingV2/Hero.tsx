@@ -115,7 +115,7 @@ export default function Hero() {
   {/* CTA Buttons */}
   <div className="flex flex-wrap items-center gap-3 mb-10">
     <Link
-      href="/get-started"
+      href="/host"
       className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold rounded-[50px] transition-all duration-200"
       style={{
         backgroundColor: 'var(--color-accent-primary)',

@@ -45,14 +45,14 @@ export default function Navigation() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 h-20 ${
+      className={`sticky top-0 left-0 right-0 z-50 h-20 ${
         scrolled
           ? 'bg-[--color-bg-primary]/95 backdrop-blur-[12px] border-b border-[--color-border]'
           : 'bg-[--color-bg-primary]'
       }`}
-
     >
-      <div className="container-landing h-full">
+      {/* Background transitions handled safely inside if needed, but sticky avoids the containing block transform issue */}
+      <div className=" container-landing h-full">
         <div className="flex items-center justify-between h-full ">
           {/* LEFT — Logo */}
           <Link href="/" className="flex items-center gap-2">
@@ -157,7 +157,7 @@ export default function Navigation() {
       {/* Mobile Navigation Drawer */}
       {isOpen && (
         <div
-          className="md:hidden absolute top-[68px] left-0  right-0 border-b border-[--color-border] shadow-lg"
+          className="md:hidden fixed top-20 left-0 right-0 border-b border-[--color-border] shadow-lg"
           style={{ 
             maxHeight: 'calc(100vh - 80px)', 
             overflowY: 'auto',
