@@ -45,7 +45,7 @@ export default function Navigation() {
 
   return (
     <nav
-      className={`sticky top-0 left-0 right-0 z-50 h-20 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 h-20  ${
         scrolled
           ? 'bg-[--color-bg-primary]/95 backdrop-blur-[12px] border-b border-[--color-border]'
           : 'bg-[--color-bg-primary]'
