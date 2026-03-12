@@ -70,7 +70,7 @@ export default function Hero() {
       letterSpacing: '-0.01em',
     }}
   >
-    Craft Invitations That{' '}
+    Create Beautiful{' '}
     <span
       style={{
         color: 'var(--color-accent-primary)',
@@ -78,9 +78,9 @@ export default function Hero() {
         fontWeight: 400,
       }}
     >
-      Leave a Lasting
+      Digital Invitation
     </span>{' '}
-    Impression
+    in Minutes
   </h1>
 
   {/* Subheading */}
@@ -107,9 +107,9 @@ export default function Hero() {
       color: 'var(--color-text-body)',
     }}
   >
-    From intimate gatherings to grand celebrations — design, personalize, and
-    share stunning invitations for weddings, baby showers, birthdays, and every
-    milestone that deserves to be remembered.
+    Create free digital invitations for weddings, birthdays & baby showers. 
+Add live countdowns, personalize every detail, and share instantly. 
+Start designing today.
   </p>
 
   {/* CTA Buttons */}

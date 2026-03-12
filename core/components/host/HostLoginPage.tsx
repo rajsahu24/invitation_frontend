@@ -7,6 +7,7 @@ import { ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
 import { useHostStore } from '../../../lib/store';
 import Image from 'next/image';
 import Link from 'next/link';
+import SVGComponent from '../landingV2/HomeLogo';
 
 export default function HostLoginPage() {
   const { login, signup } = useHostStore();
@@ -163,23 +164,10 @@ export default function HostLoginPage() {
         </div>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 relative z-10">
-          <Image 
-            width={500} 
-            height={500} 
-            className="h-12 w-auto" 
-            src="/homelogo.svg" 
-            alt="home logo" 
-          />
-          <span 
-            className="text-2xl font-bold"
-            style={{
-              fontFamily: 'var(--font-display)',
-              color: 'var(--color-text-white)',
-            }}
-          >
+        <Link href="/" className="flex items-center gap-1.5 relative z-10">
+            <SVGComponent />
             InviteEra
-          </span>
+          
         </Link>
 
         {/* Hero Content */}
