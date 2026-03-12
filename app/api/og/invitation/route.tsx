@@ -25,11 +25,21 @@ export async function GET(req: NextRequest) {
 
     const response = await fetch(fetchUrl);
     
-    if (!response.ok) {
-      return new Response('Invtiation not found', { status: 404 });
+    let data;
+    if (publicId === 'default' || slug === 'default') {
+        data = {
+            invitation_title: 'InviteEra Digital Invitations',
+            invitation_type: 'Event',
+            metadata: {
+                wedding_date: 'Select your date',
+                wedding_location: 'Share your location'
+            }
+        };
+    } else if (response.ok) {
+        data = await response.json();
+    } else {
+      return new Response('Invitation not found', { status: 404 });
     }
-
-    const data = await response.json();
     
     // Extract data for the image
     const title = data.invitation_title || 'You are Invited!';

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 
 interface Props {
   params: Promise<{
@@ -10,24 +11,35 @@ interface Props {
 // Function to fetch invitation data by slug
 async function getInvitationBySlug(slug: string) {
   const apiUrl = process.env.NEXT_PUBLIC_APIGATEWAY_URL;
+  const fetchUrl = `${apiUrl}/api/invitation-data/slug/${slug}`;
+  console.log(`[OG Debug] Fetching invitation data from: ${fetchUrl}`);
+  
   try {
-    const res = await fetch(`${apiUrl}/api/invitation-data/slug/${slug}`, {
+    const res = await fetch(fetchUrl, {
       next: { revalidate: 3600 } // Cache for 1 hour
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[OG Debug] Fetch failed with status: ${res.status}`);
+      return null;
+    }
     return res.json();
   } catch (error) {
-    console.error('Error fetching invitation by slug:', error);
+    console.error('[OG Debug] Error fetching invitation by slug:', error);
     return null;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const headerList = await headers();
+  const host = headerList.get('host');
+  const protocol = host?.includes('localhost') ? 'http' : 'https';
   
-  // We don't want to show metadata for internal routes if they match the slug
-  // though Next.js usually prioritizes static routes over dynamic ones anyway.
-  const internalRoutes = ['login', 'register', 'host', 'api', 'templates', 'about-us', 'faq', 'blog'];
+  // Use configured URL or fallback to current host
+  const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || `${protocol}://${host}`;
+  console.log(`[OG Debug] Base URL for metadata: ${baseUrl}`);
+
+  const internalRoutes = ['login', 'register', 'host', 'api', 'templates', 'about-us', 'faq', 'blog', 'auth', 'home-2'];
   if (internalRoutes.includes(slug)) {
     return {};
   }
@@ -36,13 +48,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!data) {
     return {
-      title: 'Invitation Not Found - InviteEra',
+      title: 'InviteEra - Digital Invitations',
+      description: 'Create and share beautiful digital invitations.',
+      openGraph: {
+        images: [`${baseUrl}/api/og/invitation?slug=default`],
+      }
     };
   }
 
   const title = data.invitation_title || 'You are Invited!';
   const description = data.invitation_message || data.invitation_tag_line || 'Join us for a special celebration.';
-  const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://inviteera.com';
+  // Use the one defined at line 39
+  // baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://inviteera.com';
   
   // Dynamic OG Image URL using slug
   const ogImageUrl = `${baseUrl}/api/og/invitation?slug=${slug}`;

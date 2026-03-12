@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 
 interface Props {
   params: Promise<{
@@ -9,31 +10,49 @@ interface Props {
 
 async function getInvitationData(public_id: string) {
   const apiUrl = process.env.NEXT_PUBLIC_APIGATEWAY_URL;
+  const fetchUrl = `${apiUrl}/api/invitation-data/public_id/${public_id}`;
+  console.log(`[OG Debug] Fetching invitation data from: ${fetchUrl}`);
+  
   try {
-    const res = await fetch(`${apiUrl}/api/invitation-data/public_id/${public_id}`, {
+    const res = await fetch(fetchUrl, {
       next: { revalidate: 3600 } // Cache for 1 hour
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+        console.error(`[OG Debug] Fetch failed with status: ${res.status}`);
+        return null;
+    }
     return res.json();
   } catch (error) {
-    console.error('Error fetching invitation:', error);
+    console.error('[OG Debug] Error fetching invitation:', error);
     return null;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { public_id } = await params;
+  const headerList = await headers();
+  const host = headerList.get('host');
+  const protocol = host?.includes('localhost') ? 'http' : 'https';
+
+  const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || `${protocol}://${host}`;
+  console.log(`[OG Debug] Base URL for metadata: ${baseUrl}`);
+  
   const data = await getInvitationData(public_id);
 
   if (!data) {
     return {
-      title: 'Invitation Not Found',
+      title: 'InviteEra - Digital Invitations',
+      description: 'Create and share beautiful digital invitations.',
+      openGraph: {
+        images: [`${baseUrl}/api/og/invitation?public_id=default`],
+      }
     };
   }
 
   const title = data.invitation_title || 'You are Invited!';
   const description = data.invitation_message || data.invitation_tag_line || 'Join us for a special celebration.';
-  const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://inviteera.com';
+  // Use the one defined at line 37
+  // baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://inviteera.com';
   
   // Dynamic OG Image URL
   const ogImageUrl = `${baseUrl}/api/og/invitation?public_id=${public_id}`;
