@@ -42,9 +42,9 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
         
         if (selectedTemplate) {
           const templateName = selectedTemplate.template_name.replace(/ /g, "_")
-           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/preview/${selectedTemplate.template_type}/${templateName}/${invitation_id}`;
+           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/preview/${selectedTemplate.template_type?.replace(/ /g, "_")}/${templateName?.replace(/ /g, "_")}/${invitation_id}`;
            console.log('Using selectedTemplate preview URL:', constructedUrl);
-           console.log(`/preview/${selectedTemplate.template_type}/${selectedTemplate.template_name}/${invitation_id}`)
+           console.log(`/preview/${selectedTemplate.template_type?.replace(/ /g, "_")}/${selectedTemplate.template_name?.replace(/ /g, "_")}/${invitation_id}`)
            setTemplateUrl(constructedUrl);
         } else if (public_id) {
            const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/public/${public_id}`;

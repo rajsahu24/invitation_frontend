@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     const response = await fetch(fetchUrl);
     
-    let data;
+    let data: any;
     if (publicId === 'default' || slug === 'default') {
         data = {
             invitation_title: 'InviteEra Digital Invitations',

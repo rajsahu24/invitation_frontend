@@ -155,7 +155,7 @@ export default function TemplateSlider() {
   };
 
   const handleTemplateClick = (template: Template) => {
-    router.push(`/templates/${template.template_name?.replace(/ /g, '_')}`);
+    router.push(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/preview/${template.template_type?.replace(/ /g, "_")}/${template.template_name?.replace(/ /g, "_")}/demo`);
   };
 
   // Scroll handler to update current index based on scroll position
