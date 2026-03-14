@@ -57,7 +57,7 @@ export default function Footer() {
             <div className="flex items-center  mb-4 gap-2">
               {/* White leaf icon */}
               {/* <Image width={500} height={500} className="h-13 mt-2    lg:h-16    w-auto"  src="/homelogo.svg" alt="home logo" /> */}
-              <SVGComponent />
+              {/* <SVGComponent /> */}
               <span
                 className="text-xl font-bold"
                 style={{

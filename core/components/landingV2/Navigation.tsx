@@ -59,15 +59,7 @@ export default function Navigation() {
             {/* Leaf SVG Icon */}            
             {/* <Image width={500} height={500} className="h-13 mt-2 -ml-10 sm:ml-auto  lg:h-16    w-auto"  src="/homelogo.svg" alt="home logo" /> */}
             <SVGComponent />
-            <span
-              className="text-xl font-bold"
-              style={{
-                fontFamily: 'var(--font-display)',
-                color: 'var(--color-text-heading)',
-              }}
-            >
-              InviteEra
-            </span>
+
           </Link>
 
           {/* CENTER — Nav Links (hidden on mobile, shown ≥ 768px) */}
