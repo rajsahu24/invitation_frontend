@@ -216,7 +216,7 @@ function HostDashboardContent({
           setNewGuest({ name: "", email: "", phone: "" });
           setGuestFile(null);
           setShowAddGuest(false);
-          // window.location.reload();
+          window.location.reload();
         } else {
           const error = await response.json();
           alert(`Failed to add guest: ${error.error || 'Unknown error'}`);
@@ -419,7 +419,7 @@ function HostDashboardContent({
           <h3 className="text-sm font-bold" style={{ color: 'var(--color-text-heading)' }}>Invitation URL</h3>
         </div>
         <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col  gap-2">
             {isEditingSlug ? (
               <>
                 <input
@@ -505,6 +505,7 @@ function HostDashboardContent({
                   }}
                 >
                   <Edit className="w-4 h-4" />
+                  Update your invitation link
                 </button>
               </>
             )}
@@ -597,7 +598,7 @@ function HostDashboardContent({
             >
                 <ChevronRight className="w-4 h-4" />
             </button>
-            <div className="flex  overflow-x-auto min-w-full custom-scrollbar-h scroll-smooth   "
+            <div className="flex overflow-x-auto custom-scrollbar-h scroll-smooth"
                 ref={tabsScrollRef}
                 onScroll={checkScrollPosition}
             >
@@ -612,7 +613,7 @@ function HostDashboardContent({
                         }`}
                         style={{
                             color: activeTab === tab.label ? 'var(--color-accent-primary)' : 'var(--color-text-muted)',
-                            borderBottom: activeTab === tab.label ? '2px solid var(--color-accent-primary)' : '2px solid transparent'
+                            
                         }}
                     >
                         <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -630,7 +631,7 @@ function HostDashboardContent({
             <div className={`hidden md:block absolute right-0 top-0 bottom-0 w-12 pointer-events-none transition-opacity duration-300 ${
                 scrollPosition.right ? 'opacity-100' : 'opacity-0'
             }`}>
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 pr-2">
+                <div className="absolute right-10 top-1/2 -translate-y-1/2 pr-2">
                     <div className="flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
                         {/* <span>More</span> */}
                         <ChevronRight className="w-3 h-3" />
@@ -743,7 +744,11 @@ function HostDashboardContent({
                     <input 
                         type="file" 
                         accept=".csv"
-                        className="w-full p-2 border rounded-xl text-xs sm:text-sm"
+                        className="w-full p-2 border rounded-xl text-xs sm:text-sm teaxt-gray-800"
+                                                    style={{ 
+                                borderColor: 'var(--color-accent-primary)', 
+                                color: 'var(--color-accent-primary)' 
+                            }}
                         onChange={(e) => setGuestFile(e.target.files?.[0] || null)}
                     />
 

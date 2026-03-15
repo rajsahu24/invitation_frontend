@@ -131,7 +131,7 @@ const getStatusColor = (status: number) => {
             <button
               key={f}
               onClick={() => setFilter(f as any)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
+              className="px-2 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
               style={{ 
                   backgroundColor: filter === f ? 'var(--color-accent-primary)' : 'var(--color-bg-section-alt)',
                   color: filter === f ? 'var(--color-text-white)' : 'var(--color-text-body)'

@@ -287,15 +287,19 @@ body {
 
 .custom-scrollbar-h::-webkit-scrollbar-track {
   background: transparent;
+   background: var(--color-bg-section-alt, #f5f5f5);
 }
 
 .custom-scrollbar-h::-webkit-scrollbar-thumb {
   background: #e2e8f0;
+    background: var(--color-accent-primary);
+  /* border-radius: 10px; */
   border-radius: 10px;
 }
 
 .custom-scrollbar-h::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+    background: #cbd5e1;
+  background: var(--color-accent-secondary);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
