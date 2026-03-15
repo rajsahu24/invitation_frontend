@@ -127,7 +127,7 @@ export default function HostLoginPage() {
     >
       {/* LEFT COLUMN - Brand/Navigation Section */}
       <div 
-        className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12"
+        className="hidden  lg:flex lg:w-1/2 relative flex-col justify-center p-12"
         style={{
           backgroundColor: 'var(--color-accent-primary)',
         }}
@@ -164,12 +164,19 @@ export default function HostLoginPage() {
         </div>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-1.5 relative z-10">
+        {/* <Link href="/" className="flex items-center  gap-1.5 relative z-10">
             <SVGComponent />
-            InviteEra
+        
           
+        </Link> */}
+                <Link 
+          href="/" 
+          className="top-16 absolute flex items-center gap-2 text-sm opacity-70 hover:opacity-100 transition-opacity  z-10"
+          style={{ color: 'var(--color-text-white)' }}
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
         </Link>
-
         {/* Hero Content */}
         <div className="relative z-10">
           <motion.div 
@@ -227,14 +234,7 @@ export default function HostLoginPage() {
         </div>
 
         {/* Back to home link */}
-        <Link 
-          href="/" 
-          className="flex items-center gap-2 text-sm opacity-70 hover:opacity-100 transition-opacity relative z-10"
-          style={{ color: 'var(--color-text-white)' }}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
+
       </div>
 
       {/* RIGHT COLUMN - Form Section */}

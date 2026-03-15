@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Sparkles, ArrowLeft, Search, Bell, Calendar, Plus, Edit2, Edit, Image as ImageIcon, Layout, Users, BarChart3, Heart, Trash2, Link2, Copy, Check, X } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Sparkles, ArrowLeft, Search, Bell, Calendar, Plus, Edit2, Edit, Image as ImageIcon, Layout, Users, BarChart3, Heart, Trash2, Link2, Copy, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useHostStore } from "../../lib/store";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -89,6 +89,8 @@ function HostDashboardContent({
   const [slugUpdateLoading, setSlugUpdateLoading] = useState(false);
   const [slugUpdateError, setSlugUpdateError] = useState<string | null>(null);
   const [slugUpdateSuccess, setSlugUpdateSuccess] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState({ left: false, right: false });
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
   
   // Sync invitationSlug: priority to invitationDetails.slug (user updated), then realTimePreviewData.slug (from form)
   useEffect(() => {
@@ -288,6 +290,29 @@ function HostDashboardContent({
     setIsEditingSlug(false);
     setEditedSlug('');
     setSlugUpdateError(null);
+  };
+
+  // Check scroll position for tab navigation
+  const checkScrollPosition = useCallback(() => {
+    const container = tabsScrollRef.current;
+    if (container) {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      setScrollPosition({
+        left: scrollLeft > 0,
+        right: scrollLeft + clientWidth < scrollWidth - 1
+      });
+    }
+  }, []);
+
+  const scrollTabs = (direction: 'left' | 'right') => {
+    const container = tabsScrollRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.6;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   };
 
 
@@ -531,12 +556,51 @@ function HostDashboardContent({
     
     return tabsList;
   }, [localSections]);
+  
+  // Check scroll position on mount and when tabs change
+  useEffect(() => {
+    // Delay to ensure DOM is rendered
+    const timer = setTimeout(checkScrollPosition, 100);
+    return () => clearTimeout(timer);
+  }, [tabs, checkScrollPosition]);
     
   const Main = (
     <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden flex flex-col min-h-[400px] sm:min-h-[600px]" style={{ borderColor: 'var(--color-border)' }}>
         
         <div className="relative border-b flex-shrink-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-section-alt)' }}>
-            <div className="flex overflow-x-auto custom-scrollbar-h scroll-smooth">
+            {/* Scroll Left Button */}
+            <button
+                onClick={() => scrollTabs('left')}
+                className={`absolute left-1 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full shadow-md transition-all hover:scale-110 hidden md:flex items-center justify-center ${
+                    scrollPosition.left ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                style={{ 
+                    backgroundColor: 'var(--color-accent-primary)', 
+                    color: 'var(--color-text-white)'
+                }}
+                aria-label="Scroll left"
+            >
+                <ChevronLeft className="w-4 h-4" />
+            </button>
+            
+            {/* Scroll Right Button */}
+            <button
+                onClick={() => scrollTabs('right')}
+                className={`absolute right-1 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full shadow-md transition-all hover:scale-110 hidden md:flex items-center justify-center ${
+                    scrollPosition.right ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                style={{ 
+                    backgroundColor: 'var(--color-accent-primary)', 
+                    color: 'var(--color-text-white)'
+                }}
+                aria-label="Scroll right"
+            >
+                <ChevronRight className="w-4 h-4" />
+            </button>
+            <div className="flex  overflow-x-auto min-w-full custom-scrollbar-h scroll-smooth   "
+                ref={tabsScrollRef}
+                onScroll={checkScrollPosition}
+            >
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
@@ -558,9 +622,21 @@ function HostDashboardContent({
                 ))}
             </div>
             
-            {/* Scroll Indicator Gradients */}
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l to-transparent pointer-events-none lg:hidden" style={{ background: 'linear-gradient(to left, var(--color-bg-section-alt), transparent)' }} />
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r to-transparent pointer-events-none lg:hidden" style={{ background: 'linear-gradient(to right, var(--color-bg-section-alt), transparent)' }} />
+            {/* Mobile Scroll Indicator Gradients */}
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l to-transparent pointer-events-none md:hidden" style={{ background: 'linear-gradient(to left, var(--color-bg-section-alt), transparent)' }} />
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r to-transparent pointer-events-none md:hidden" style={{ background: 'linear-gradient(to right, var(--color-bg-section-alt), transparent)' }} />
+            
+            {/* Desktop Scroll Hint - Shows when there's more content */}
+            <div className={`hidden md:block absolute right-0 top-0 bottom-0 w-12 pointer-events-none transition-opacity duration-300 ${
+                scrollPosition.right ? 'opacity-100' : 'opacity-0'
+            }`}>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 pr-2">
+                    <div className="flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                        {/* <span>More</span> */}
+                        <ChevronRight className="w-3 h-3" />
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div className="p-3 sm:p-6 overflow-y-auto flex-1 h-full">
