@@ -6,10 +6,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return {
       afterFiles: [
-        {
-          source: "/:path*",
-          destination: `${TEMPLATE_URL}/:path*`,
-        },
+
         {
           source: "/assets/:path*",
           destination: `${TEMPLATE_URL}/assets/:path*`,
