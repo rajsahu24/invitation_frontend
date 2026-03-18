@@ -6,14 +6,9 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return {
       afterFiles: [
-
         {
           source: "/assets/:path*",
           destination: `${TEMPLATE_URL}/assets/:path*`,
-        },
-        {
-          source: "/preview/:path*",
-          destination: `${TEMPLATE_URL}/preview/:path*`,
         },
         {
           source: "/public/:public_id",

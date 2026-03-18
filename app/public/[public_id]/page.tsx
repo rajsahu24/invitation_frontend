@@ -12,7 +12,7 @@ async function getInvitationData(public_id: string) {
   const apiUrl = process.env.NEXT_PUBLIC_APIGATEWAY_URL;
   const fetchUrl = `${apiUrl}/api/invitation-data/public_id/${public_id}`;
   console.log(`[OG Debug] Fetching invitation data from: ${fetchUrl}`);
-  
+  console.log("Hellojadfasjdf")
   try {
     const res = await fetch(fetchUrl, {
       next: { revalidate: 3600 } // Cache for 1 hour
