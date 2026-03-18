@@ -30,7 +30,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
   if(slug!==undefined){
     button_url =  `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${slug}`
   }else{
-    button_url = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/public/${public_id}`
+    button_url = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/${public_id}`
   }
   console.log(selectedTemplate  )
   
@@ -47,7 +47,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({ url, isLoading = false, realT
            console.log(`/preview/${selectedTemplate.template_type?.replace(/ /g, "_")}/${selectedTemplate.template_name?.replace(/ /g, "_")}/${invitation_id}`)
            setTemplateUrl(constructedUrl);
         } else if (public_id) {
-           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/public/${public_id}`;
+           const constructedUrl = `${process.env.NEXT_PUBLIC_TEMPLATE_APIGATEWAY_URL}/${public_id}`;
            console.log('Using public_id URL:', constructedUrl);
            setTemplateUrl(constructedUrl);
         }
