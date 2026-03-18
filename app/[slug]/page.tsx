@@ -8,7 +8,7 @@ interface Props {
   }>;
 }
 
-const internalRoutes = ['login', 'register', 'host', 'api', 'templates', 'about-us', 'faq', 'blog', 'auth', 'home-2', 'public'];
+const internalRoutes = ['login', 'register', 'host', 'api', 'templates', 'about-us', 'faq', 'blog', 'auth', 'home-2', 'public', 'preview'];
 
 function isPublicId(slug: string) {
   return slug.startsWith('pub_') && slug.length === 16;

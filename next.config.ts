@@ -12,10 +12,6 @@ const nextConfig: NextConfig = {
           destination: `${TEMPLATE_URL}/assets/:path*`,
         },
         {
-          source: "/_next/static/:path*",
-          destination: `${TEMPLATE_URL}/_next/static/:path*`,
-        },
-        {
           source: "/preview/:path*",
           destination: `${TEMPLATE_URL}/preview/:path*`,
         },
