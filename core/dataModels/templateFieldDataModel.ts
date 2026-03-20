@@ -72,4 +72,5 @@ export interface Template {
   template_type: string;
   template_name: string;
   template_image: string;
+  is_active?: boolean;
 }

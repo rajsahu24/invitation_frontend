@@ -67,6 +67,7 @@ export interface Template {
   previewUrl?: string; // Adding for consistency with frontend formatting
   template_sections?: any; // Added for completeness if needed
   template_image?: string; // Match what comes from backend sometimes
+  is_active?: boolean; // Active status from backend
 }
 
 export interface HostInvitation {

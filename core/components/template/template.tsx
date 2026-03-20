@@ -12,9 +12,11 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
   const { setSelectedTemplate } = useHostStore();
   const router = useRouter();
 
-  const categories = ['all', ...Array.from(new Set(template_data.map(t => t.template_type)))];
+  // Filter active templates first
+  const activeTemplates = template_data.filter(t => t.is_active === true || t.is_active === undefined);
+  const categories = ['all', ...Array.from(new Set(activeTemplates.map(t => t.template_type)))];
 
-  const filteredTemplates = template_data.filter(template => {
+  const filteredTemplates = activeTemplates.filter(template => {
     const matchesCategory = selectedCategory === 'all' || template.template_type === selectedCategory;
     const matchesSearch = template.template_name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -139,7 +141,7 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
                 }}
                 onClick={()=> handleTemplateClick(template)}
               >
-                <div className="relative aspect-[3/4] overflow-hidden" style={{ backgroundColor: 'var(--color-bg-section-alt)' }}>
+                <div className="relative aspect-[9/16] overflow-hidden" style={{ backgroundColor: 'var(--color-bg-section-alt)' }}>
                   <img
                     src={template.thumbnail || template.template_image || '/placeholder-template.jpg'}
                     alt={template.template_name}

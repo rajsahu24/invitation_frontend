@@ -46,7 +46,11 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
           const data = await response.json();
-          setTemplates(data);
+          // Filter to only show active templates
+          const activeTemplates = data.filter((template: Template) => 
+            template.is_active === true || template.is_active === undefined
+          );
+          setTemplates(activeTemplates);
           
           // Set initial category based on invitation type if available
           if (invitationDetails?.invitation_type) {

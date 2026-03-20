@@ -89,7 +89,8 @@ function Templates(template_data:TemplateDataProps) {
   const constraintsRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(-300); // Start offset to have content on both sides
-  const templates = template_data.template_data
+  // Filter to only show active templates
+  const templates = template_data.template_data.filter((t: Template) => t.is_active === true || t.is_active === undefined)
   const isDragging = useRef(false);
 
   // Custom animation loop for infinite scroll marquee

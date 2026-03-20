@@ -13,7 +13,9 @@ async function page() {
       cache: 'no-store'
     });
     if (!response.ok) throw new Error('Failed to fetch templates');
-    template_data = await response.json();
+    const allTemplates = await response.json();
+    // Filter to only show active templates on server side
+    template_data = allTemplates.filter((t: any) => t.is_active === true || t.is_active === undefined);
   } catch (error) {
     console.error('Error fetching templates:', error);
   }

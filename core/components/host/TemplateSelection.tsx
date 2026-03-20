@@ -25,7 +25,12 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
         const response = await fetch(`${process.env.NEXT_PUBLIC_APIGATEWAY_URL}/api/templates`);
         const data = await response.json();
         
-        const formattedTemplates = data.map((template: any) => ({
+        // Filter to only show active templates
+        const activeTemplates = data.filter((template: any) => 
+          template.is_active === true || template.is_active === undefined
+        );
+        
+        const formattedTemplates = activeTemplates.map((template: any) => ({
           id: template.id,
           template_name: template.template_name,
           template_type: template.template_type,

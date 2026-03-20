@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 interface Template {
   id: string;
   template_name: string;
   template_type: string;
   template_image?: string;
+  template_url?: string;
+  is_active: boolean;
 }
 
 export default function TemplateSlider() {
@@ -36,7 +39,11 @@ export default function TemplateSlider() {
         });
         if (response.ok) {
           const data = await response.json();
-          setTemplates(data);
+          // Filter to only show active templates
+          const activeTemplates = data.filter((template: Template) => 
+            template.is_active === true || template.is_active === undefined
+          );
+          setTemplates(activeTemplates);
         }
       } catch (error) {
         console.error('Failed to fetch templates:', error);
@@ -274,7 +281,7 @@ export default function TemplateSlider() {
         {/* Cards Container - with drag and touch support */}
         <div
           ref={sliderRef}
-          className="flex gap-5 overflow-x-auto no-scrollbar px-6 md:px-20 snap-x snap-mandatory py-4 cursor-grab active:cursor-grabbing"
+          className=" justify-center flex gap-5 overflow-x-auto no-scrollbar px-6 md:px-20 snap-x snap-mandatory py-4 cursor-grab active:cursor-grabbing"
           style={{
             scrollBehavior: 'smooth',
             WebkitOverflowScrolling: 'touch',
@@ -291,68 +298,61 @@ export default function TemplateSlider() {
           {duplicatedTemplates.map((template, idx) => (
             <div
               key={`${template.id}-${idx}`}
-              className="flex-shrink-0 snap-center"
-              style={{ width: 'clamp(180px, 28vw, 280px)' }}
+              className="flex-shrink-0 snap-center w-[clamp(200px,100vw,320px)] md:w-[clamp(200px,100vw,220px)]"
             >
+            <Link target='_blank' href={`/preview/${template.template_type?.replace(/ /g, "_")}/${template.template_name?.replace(/ /g, "_")}/demo`}>
               <div
                 className="group/card cursor-pointer transition-all duration-300 hover:-translate-y-2"
-                onClick={() => {
-                  if (idx < templates.length || idx >= templates.length * 2) {
-                    handleTemplateClick(template);
-                  }
-                }}
               >
-                {/* Phone Mockup */}
+                {/* Full Scrollable Template Preview */}
                 <div className="relative">
-                  {/* Outer Frame */}
+                  {/* Template Container with scroll */}
                   <div
-                    className="relative rounded-[32px] overflow-hidden transition-all duration-300 group-hover/card:shadow-xl"
-                    style={{
-                      backgroundColor: '#1a1a1a',
-                      padding: '8px',
-                      boxShadow: 'var(--shadow-phone)',
-                    }}
+                    className="relative rounded-2xl overflow-hidden transition-all duration-300 group-hover/card:shadow-xl border border-[var(--color-border)] shadow-[var(--shadow-card)] h-[clamp(320px,100vh,45rem)] md:h-[clamp(320px,100vh,30rem)]"
                   >
-                    {/* Notch */}
-                    <div
-                      className="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-28 bg-[#1a1a1a] rounded-b-xl z-10"
-                    />
-
-                    {/* Screen */}
-                    <div
-                      className="relative rounded-[26px] overflow-hidden aspect-[9/16]"
-                      style={{ backgroundColor: 'white' }}
-                    >
-                      {template.template_image ? (
+                    {template.template_url ? (
+                      <iframe
+                        src={template.template_url}
+                        className="w-full h-full"
+                        title={template.template_name}
+                      />
+                    ) : template.template_image ? (
+                      <div className="w-full h-full overflow-y-auto no-scrollbar">
                         <img
                           src={template.template_image}
                           alt={template.template_name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-auto object-cover"
                         />
-                      ) : (
-                        <div
-                          className="w-full h-full flex items-center justify-center"
+                        {/* Gradient overlay at bottom for scroll indication */}
+                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{
+                          background: 'linear-gradient(135deg, #D4E8D1 0%, #E8F5E9 100%)',
+                        }}
+                      >
+                        <span
                           style={{
-                            background: 'linear-gradient(135deg, #D4E8D1 0%, #E8F5E9 100%)',
+                            fontFamily: 'var(--font-display)',
+                            fontSize: '48px',
+                            color: 'var(--color-accent-primary)',
                           }}
                         >
-                          <span
-                            style={{
-                              fontFamily: 'var(--font-display)',
-                              fontSize: '48px',
-                              color: 'var(--color-accent-primary)',
-                            }}
-                          >
-                            ✦
-                          </span>
-                        </div>
-                      )}
+                          ✦
+                        </span>
+                      </div>
+                    )}
 
-                      {/* Gradient overlay at bottom */}
-                      <div
-                        className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent"
-                      />
-                    </div>
+                    {/* Scroll indicator - only show when using image */}
+                    {template.template_image && !template.template_url && (
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-60">
+                        <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
 
                   {/* Card Info */}
@@ -388,6 +388,7 @@ export default function TemplateSlider() {
                   </div>
                 </div>
               </div>
+            </Link>
             </div>
           ))}
         </div>
