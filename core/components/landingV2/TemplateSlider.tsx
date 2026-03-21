@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, ExternalLink } from 'lucide-react';
+import { Sparkles, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface Template {
@@ -16,19 +16,41 @@ interface Template {
 
 export default function TemplateSlider() {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
   const router = useRouter();
 
-  const minSwipeDistance = 50;
+  // Calculate card width based on container
+  const cardWidth = useCallback(() => {
+    if (typeof window === 'undefined') return 280;
+    if (window.innerWidth < 640) return window.innerWidth * 0.85; // 85% of viewport on mobile
+    if (window.innerWidth < 1024) return 240;
+    return 280;
+  }, []);
+
+  // Update container width on resize
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+    
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   // Fetch templates from API
   useEffect(() => {
@@ -39,7 +61,6 @@ export default function TemplateSlider() {
         });
         if (response.ok) {
           const data = await response.json();
-          // Filter to only show active templates
           const activeTemplates = data.filter((template: Template) => 
             template.is_active === true || template.is_active === undefined
           );
@@ -73,61 +94,94 @@ export default function TemplateSlider() {
     return () => observer.disconnect();
   }, []);
 
-  // Auto-scroll functionality
+  // Auto-scroll functionality with proper infinite scrolling
+  const scrollToIndex = useCallback((index: number) => {
+    if (!sliderRef.current || templates.length === 0) return;
+    
+    const cardW = cardWidth();
+    const gap = 20; // gap-5 = 20px
+    const scrollPosition = (cardW + gap) * index;
+    
+    sliderRef.current.scrollTo({
+      left: scrollPosition,
+      behavior: 'smooth',
+    });
+    setCurrentIndex(index);
+  }, [templates.length, cardWidth]);
+
   const goToNext = useCallback(() => {
     if (templates.length === 0) return;
-    const newIndex = (currentIndex + 1) % templates.length;
-    setCurrentIndex(newIndex);
-    
-    if (sliderRef.current) {
-      const scrollWidth = sliderRef.current.scrollWidth / templates.length;
-      sliderRef.current.scrollTo({
-        left: scrollWidth * newIndex,
-        behavior: 'smooth',
-      });
-    }
-  }, [currentIndex, templates.length]);
+    const nextIndex = (currentIndex + 1) % templates.length;
+    scrollToIndex(nextIndex);
+  }, [currentIndex, templates.length, scrollToIndex]);
 
-  const startAutoScroll = useCallback(() => {
+  const goToPrev = useCallback(() => {
+    if (templates.length === 0) return;
+    const prevIndex = currentIndex === 0 ? templates.length - 1 : currentIndex - 1;
+    scrollToIndex(prevIndex);
+  }, [currentIndex, templates.length, scrollToIndex]);
+
+  // Auto-scroll with pause on hover
+  useEffect(() => {
+    if (templates.length === 0) return;
+    
     if (intervalRef.current) clearInterval(intervalRef.current);
+    
     intervalRef.current = setInterval(() => {
-      if (!isPaused && !isDragging && templates.length > 0) {
+      if (!isPaused && !isDragging && !isHovered) {
         goToNext();
       }
     }, 3500);
-  }, [isPaused, isDragging, templates.length, goToNext]);
 
-  useEffect(() => {
-    if (templates.length > 0) {
-      startAutoScroll();
-    }
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [templates.length, startAutoScroll]);
+  }, [templates.length, isPaused, isDragging, isHovered, goToNext]);
 
-  const handlePrev = () => {
+  // Handle scroll position to track current index
+  const handleScroll = useCallback(() => {
     if (!sliderRef.current || templates.length === 0) return;
-    const scrollWidth = sliderRef.current.scrollWidth / templates.length;
-    const newIndex = currentIndex === 0 ? templates.length - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
-    sliderRef.current.scrollTo({
-      left: scrollWidth * newIndex,
-      behavior: 'smooth',
-    });
-  };
+    
+    const cardW = cardWidth();
+    const gap = 20;
+    const currentScroll = sliderRef.current.scrollLeft;
+    const newIndex = Math.round(currentScroll / (cardW + gap)) % templates.length;
+    
+    if (newIndex >= 0 && newIndex < templates.length) {
+      setCurrentIndex(newIndex);
+    }
+  }, [templates.length, cardWidth]);
 
-  const handleNext = () => {
-    goToNext();
-  };
-
-  const handleMouseEnter = () => setIsPaused(true);
-  const handleMouseLeave = () => setIsPaused(false);
-
-  // Touch handlers for swipe
-  const onTouchStart = (e: React.TouchEvent) => {
+  // Mouse drag handlers for manual sliding
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!sliderRef.current) return;
     setIsDragging(true);
-    setTouchEnd(null);
+    setStartX(e.pageX - sliderRef.current.offsetLeft);
+    setScrollLeft(sliderRef.current.scrollLeft);
+  };
+
+  const onMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const onMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !sliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Scroll-fast
+    sliderRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  // Touch handlers for mobile swipe
+  const minSwipeDistance = 50;
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
   };
 
@@ -136,42 +190,33 @@ export default function TemplateSlider() {
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) {
-      setIsDragging(false);
-      return;
-    }
+    if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
     
     if (isLeftSwipe) {
-      handleNext();
+      goToNext();
     } else if (isRightSwipe) {
-      handlePrev();
+      goToPrev();
     }
-    setIsDragging(false);
-  };
-
-  // Mouse drag handlers for manual sliding
-  const onMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-  };
-
-  const onMouseUp = () => {
-    setIsDragging(false);
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   const handleTemplateClick = (template: Template) => {
     router.push(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/preview/${template.template_type?.replace(/ /g, "_")}/${template.template_name?.replace(/ /g, "_")}/demo`);
   };
 
-  // Scroll handler to update current index based on scroll position
-  const handleScroll = () => {
-    if (!sliderRef.current || templates.length === 0) return;
-    const scrollLeft = sliderRef.current.scrollLeft;
-    const scrollWidth = sliderRef.current.scrollWidth / templates.length;
-    const newIndex = Math.round(scrollLeft / scrollWidth) % templates.length;
-    setCurrentIndex(newIndex);
+  // Handle mouse enter/leave for pause
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+    setIsHovered(true);
+  };
+
+  const handleMouseExit = () => {
+    setIsPaused(false);
+    setIsHovered(false);
   };
 
   // Loading state
@@ -241,64 +286,52 @@ export default function TemplateSlider() {
       </div>
 
       {/* Slider Container */}
-      <div className="relative group">
-        {/* Gradient overlays for fade effect */}
-          {/* <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none" /> */}
+      <div 
+        ref={containerRef}
+        className="relative group px-4 md:px-8"
+      >
 
         {/* Left Arrow */}
         <button
-          onClick={handlePrev}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[var(--color-accent-primary)] hover:text-white opacity-0 group-hover:opacity-100"
+          onClick={goToPrev}
+          className="hidden  absolute left-0 md:left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full lg:flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[var(--color-accent-primary)] hover:text-white bg-white/90 md:bg-white shadow-lg md:shadow-[var(--shadow-card)] opacity-100 md:opacity-0 md:group-hover:opacity-100"
           style={{
-            backgroundColor: 'white',
-            boxShadow: 'var(--shadow-card)',
             color: 'var(--color-accent-primary)',
           }}
           aria-label="Previous slide"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="15,18 9,12 15,6" />
-          </svg>
+          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
         </button>
 
         {/* Right Arrow */}
         <button
-          onClick={handleNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[var(--color-accent-primary)] hover:text-white opacity-0 group-hover:opacity-100"
+          onClick={goToNext}
+          className="hidden absolute right-0 md:right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full lg:flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[var(--color-accent-primary)] hover:text-white bg-white/90 md:bg-white shadow-lg md:shadow-[var(--shadow-card)] opacity-100 md:opacity-0 md:group-hover:opacity-100"
           style={{
-            backgroundColor: 'white',
-            boxShadow: 'var(--shadow-card)',
             color: 'var(--color-accent-primary)',
           }}
           aria-label="Next slide"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="9,18 15,12 9,6" />
-          </svg>
+          <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
         </button>
 
         {/* Cards Container - with drag and touch support */}
         <div
           ref={sliderRef}
-          className=" justify-center flex gap-5 overflow-x-auto no-scrollbar px-6 md:px-20 snap-x snap-mandatory py-4 cursor-grab active:cursor-grabbing"
-          style={{
-            scrollBehavior: 'smooth',
-            WebkitOverflowScrolling: 'touch',
-          }}
+          className="flex gap-5 overflow-x-auto scroll-smooth no-scrollbar px-2 md:px-4 snap-x snap-mandatory py-4 cursor-grab active:cursor-grabbing select-none"
           onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseLeave={handleMouseExit}
+          onMouseDown={onMouseDown}
+          onMouseUp={onMouseUp}
+          onMouseMove={onMouseMove}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp}
-          onScroll={handleScroll}
         >
-          {duplicatedTemplates.map((template, idx) => (
+          {templates.map((template, idx) => (
             <div
               key={`${template.id}-${idx}`}
-              className="flex-shrink-0 snap-center w-[clamp(200px,100vw,320px)] md:w-[clamp(200px,100vw,220px)]"
+              className="flex-shrink-0 snap-center w-[85vw] sm:w-[240px] md:w-[260px] lg:w-[280px]"
             >
             <Link target='_blank' href={`/preview/${template.template_type?.replace(/ /g, "_")}/${template.template_name?.replace(/ /g, "_")}/demo`}>
               <div
@@ -308,7 +341,7 @@ export default function TemplateSlider() {
                 <div className="relative">
                   {/* Template Container with scroll */}
                   <div
-                    className="relative rounded-2xl overflow-hidden transition-all duration-300 group-hover/card:shadow-xl border border-[var(--color-border)] shadow-[var(--shadow-card)] h-[clamp(320px,100vh,45rem)] md:h-[clamp(320px,100vh,30rem)]"
+                    className="relative rounded-2xl overflow-hidden transition-all duration-300 group-hover/card:shadow-xl border border-[var(--color-border)] shadow-[var(--shadow-card)] h-[75vh]"
                   >
                     {template.template_url ? (
                       <iframe
@@ -394,20 +427,12 @@ export default function TemplateSlider() {
         </div>
 
         {/* Dot indicators */}
-        <div className="flex justify-center items-center gap-2 mt-8">
-          {templates.slice(0, Math.min(templates.length, 6)).map((_, index) => (
+        <div className="flex justify-center items-center gap-2 mt-6 md:mt-8 px-4">
+          {templates.map((_, index) => (
             <button
               key={index}
-              onClick={() => {
-                if (!sliderRef.current || templates.length === 0) return;
-                const scrollWidth = sliderRef.current.scrollWidth / templates.length;
-                setCurrentIndex(index);
-                sliderRef.current.scrollTo({
-                  left: scrollWidth * index,
-                  behavior: 'smooth',
-                });
-              }}
-              className="rounded-full transition-all duration-300"
+              onClick={() => scrollToIndex(index)}
+              className="rounded-full transition-all duration-300 hover:scale-110"
               style={{
                 width: currentIndex === index ? '24px' : '8px',
                 height: '8px',

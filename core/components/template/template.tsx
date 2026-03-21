@@ -129,31 +129,73 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
             <p className="mt-1 text-sm" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Try adjusting your search or filter.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredTemplates.map((template) => (
               <div
                 key={template.id}
-                className="group rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
+                className="group rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
                 style={{ 
                   backgroundColor: 'var(--color-card-bg)', 
                   border: '1px solid var(--color-border)',
                   fontFamily: 'var(--font-body)'
                 }}
-                onClick={()=> handleTemplateClick(template)}
               >
-                <div className="relative aspect-[9/16] overflow-hidden" style={{ backgroundColor: 'var(--color-bg-section-alt)' }}>
-                  <img
-                    src={template.thumbnail || template.template_image || '/placeholder-template.jpg'}
-                    alt={template.template_name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500" viewBox="0 0 400 500"%3E%3Crect fill="%23f3f4f6" width="400" height="500"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%239ca3af"%3ETemplate%3C/text%3E%3C/svg%3E';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <button className="w-full py-2 px-4 rounded-lg font-medium transition"
+                <div className="relative h-[75vh] overflow-hidden rounded-t-xl" style={{ backgroundColor: 'var(--color-bg-section-alt)' }}>
+                  {/* Check if template_url exists, otherwise show image */}
+                  {(template as any).template_url ? (
+                    <iframe
+                      src={(template as any).template_url}
+                      className="w-full h-full"
+                      title={template.template_name}
+                    />
+                  ) : (
+                    <>
+                      <div className="w-full h-full overflow-y-auto no-scrollbar">
+                        <img
+                          src={template.thumbnail || template.template_image || '/placeholder-template.jpg'}
+                          alt={template.template_name}
+                          className="w-full h-auto object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500" viewBox="0 0 400 500"%3E%3Crect fill="%23f3f4f6" width="400" height="500"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%239ca3af"%3ETemplate%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                        {/* Gradient overlay at bottom for scroll indication */}
+                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+                      </div>
+                      {/* Scroll indicator - only show when using image */}
+                      {(template as any).template_image && (
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-60">
+                          <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold mb-1 line-clamp-1" style={{ color: 'var(--color-text-heading)' }}>{template.template_name}</h3>
+                  <p className="text-sm capitalize mb-3" style={{ color: 'var(--color-text-body)' }}>{template.template_type}</p>
+                  <div className="flex gap-2">
+                    <a 
+                      target='_blank' 
+                      rel='noopener noreferrer'
+                      href={`/preview/${template.template_type?.replace(/ /g, "_")}/${template.template_name?.replace(/ /g, "_")}/demo`}
+                      className="flex-1 py-2 px-3 rounded-lg text-sm font-medium text-center transition"
+                      style={{ 
+                        backgroundColor: 'transparent', 
+                        color: 'var(--color-accent-primary)',
+                        border: '1px solid var(--color-accent-primary)'
+                      }}
+                    >
+                      View Template
+                    </a>
+                    <button 
+                      onClick={() => handleTemplateClick(template)}
+
+                      className="cursor-p flex-1 py-2 px-3 rounded-lg text-sm font-medium transition"
                       style={{ 
                         backgroundColor: 'var(--color-accent-primary)', 
                         color: 'var(--color-text-white)' 
@@ -162,10 +204,6 @@ function TemplateGallery({ template_data }: { template_data: Template[] }) {
                       Use Template
                     </button>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold mb-1 line-clamp-1" style={{ color: 'var(--color-text-heading)' }}>{template.template_name}</h3>
-                  <p className="text-sm capitalize" style={{ color: 'var(--color-text-body)' }}>{template.template_type}</p>
                 </div>
               </div>
             ))}

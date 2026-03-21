@@ -18,7 +18,7 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
   const [category, setCategory] = useState<string>('All');
   const [loading, setLoading] = useState(true);
 
-  console.log("local selected template", selectedTemplate);
+ 
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
