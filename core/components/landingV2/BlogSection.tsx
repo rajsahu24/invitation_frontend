@@ -182,7 +182,7 @@ export default function BlogSection() {
               fontFamily: 'var(--font-body)',
             }}
           >
-            View All Articles
+            View All Blog
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
