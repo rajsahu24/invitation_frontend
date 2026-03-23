@@ -3,6 +3,9 @@ import Footer from "@/core/components/landing/Footer";
 import Navigation from "@/core/components/landing/Navigation";
 export const dynamic = 'force-dynamic';
 
+
+
+
 async function page() {
     let blogs
   try {
