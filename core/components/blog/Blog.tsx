@@ -149,8 +149,8 @@ function Blog({ blog }: Blogprops) {
         return (
           <a 
             href={node.url} 
-            className="underline hover:opacity-80" 
-            style={{ color: 'var(--color-accent-primary)' }} 
+            className="underline hover:opacity-80 break-all"
+            style={{ color: 'var(--color-accent-primary)', wordBreak: 'break-word', overflowWrap: 'anywhere' }} 
             target="_blank" 
             rel="noopener noreferrer"
           >
@@ -240,7 +240,7 @@ function Blog({ blog }: Blogprops) {
       </div>
 
       {/* Content */}
-      <article className="max-w-4xl mx-auto px-6 pb-20" style={{ fontFamily: 'var(--font-body)' }}>
+      <article className="whitespace-pre-wrap max-w-4xl mx-auto px-6 pb-20 overflow-hidden" style={{ fontFamily: 'var(--font-body)' }}>
         {renderContent()}
       </article>
     </div>
