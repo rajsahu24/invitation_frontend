@@ -60,7 +60,7 @@ function HostDashboardContent({
   console.log(invitation)
 
   const [invitationDetails, setInvitationDetails] = useState<Invitation | undefined>(invitation);
-  
+   console.log("Guests List.......",guests)
   // Set default active tab to 'invitation_details'
     // Real-time preview data state
   const [realTimePreviewData, setRealTimePreviewData] = useState<{

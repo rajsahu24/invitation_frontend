@@ -80,7 +80,7 @@ async function page({ params }: PageProps) {
     // Silently fail - template is optional
   }
 
-  console.log(guests)
+ 
   
   return <HostDashboardContent guests={guests} templateSection={templateSection} invitation={invitation} invitationId={invitationId}/>;
 }
