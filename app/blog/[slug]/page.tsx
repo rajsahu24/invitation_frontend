@@ -47,10 +47,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: post.created_at,
       modifiedTime: post.updated_at,
       siteName: "InviteEra",
-      images: (post.cover_image || post.thumbnail)
+      images: (post.thumbnail || post.thumbnail)
         ? [
             {
-              url: post.cover_image || post.thumbnail,
+              url: post.thumbnail || post.thumbnail,
               width: 1200,
               height: 630,
               alt: post.meta_title,
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: post.meta_title,
       description: post.meta_description,
-      images: (post.cover_image || post.thumbnail) ? [post.cover_image || post.thumbnail] : [],
+      images: (post.thumbnail || post.thumbnail) ? [post.thumbnail || post.thumbnail] : [],
     },
 
     // ✅ Robots — tell Google to index this page
@@ -86,7 +86,7 @@ function BlogSchema({ post, slug }: { post: any; slug: string }) {
     "@type": "BlogPosting",
     headline: post.meta_title,
     description: post.meta_description,
-    image: post.cover_image || "",
+    image: post.thumbnail || "",
     url: `${baseUrl}/blog/${slug}`,
     datePublished: post.created_at,
     dateModified: post.updated_at,
@@ -122,7 +122,7 @@ function BlogSchema({ post, slug }: { post: any; slug: string }) {
 export default async function page({ params }: Props) {
   const { slug } = await params;
   const blog = await getBlog(slug);
-
+  
   // ✅ Returns proper 404 if blog not found
   if (!blog) return notFound();
 
