@@ -1,11 +1,13 @@
-import React from 'react'
+import Contact from '@/core/components/contact-us/Contact';
+import Footer from '@/core/components/landingV2/Footer';
+import Navigation from '@/core/components/landingV2/Navigation';
 
-function page() {
-  return (
-    <div>
-        <h1>contact-us</h1>
-    </div>
-  )
+export default function ContactPage() {
+  return( 
+    <>
+          <Navigation />
+        <Contact />
+        <Footer />
+    </>
+)
 }
-
-export default page
