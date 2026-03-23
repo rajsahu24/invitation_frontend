@@ -14,7 +14,8 @@ const navLinks = [
   { name: 'Templates', href: '/templates' },
   { name: 'Blog', href: '/blog' },
   { name: 'About', href: '/about-us' },
-  {name:'FAQ',href:'/faq'}
+  {name:'FAQ',href:'/faq'},
+  {name:'Contact' ,href:'/contact-us'}
 ];
 
 export default function Navigation() {

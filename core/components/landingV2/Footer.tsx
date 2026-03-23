@@ -9,13 +9,13 @@ const footerLinks = {
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about-us' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Pricing', href: '#pricing' },
+    // { name: 'Pricing', href: '#pricing' },
   ],
   support: [
-    { name: 'FAQ', href: '#faq' },
-    { name: 'Contact', href: '#contact' },
-    { name: 'Privacy', href: '#privacy' },
-    { name: 'Terms', href: '#terms' },
+    { name: 'FAQ', href: '/faq' },
+    { name: 'Contact', href: '/contact-us' },
+    // { name: 'Privacy', href: '#privacy' },
+    // { name: 'Terms', href: '#terms' },
   ],
 };
 
