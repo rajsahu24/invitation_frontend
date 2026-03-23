@@ -43,7 +43,7 @@ export default function Footer() {
   return (
     <footer
       ref={sectionRef}
-      className={`py-16 transition-all duration-700 ${
+      className={`py-10 transition-all duration-700 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
       style={{ backgroundColor: 'var(--color-bg-dark)' }}
@@ -214,6 +214,29 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
+        {/* Copyright bar */}
+        <div
+          className="pt-8 mt-8 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center flex-wrap"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
+        >
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+            © 2026 InviteEra
+          </span>
+          <span className="hidden sm:inline" style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+          <a
+            href="https://inviteera.com"
+            style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}
+            className="hover:text-white transition-colors duration-200"
+          >
+            inviteera.com
+          </a>
+          <span className="hidden sm:inline" style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+            All Rights Reserved
+          </span>
+        </div>
+
       </div>
     </footer>
   );
