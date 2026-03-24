@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CreateInvitationForm from './CreateInvitationForm';
 import UpdateInvitationForm from './UpdateInvitationForm';
+import Link from 'next/link';
 
 interface InvitationEvent {
   id: string;
@@ -53,13 +54,12 @@ const itemVariants = {
 };
 
 export default function InvitationList({ initialInvitations = [] }: InvitationListProps) {
-  const { user, logout, setCurrentInvitation, updateInvitation } = useHostStore();
+  const { user, logout } = useHostStore();
   const [invitations, setInvitations] = useState<Invitation[]>(initialInvitations);
   const [loading, setLoading] = useState(invitations.length === 0);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState<string | null>(null);
-  const router = useRouter();
-
+const router = useRouter(); 
   const onCreateNew = () => {
     setShowCreateForm(true);
   };
@@ -86,40 +86,6 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
   const handleSettingsClick = (e: React.MouseEvent, invitationId: string) => {
     e.stopPropagation();
     setShowUpdateForm(invitationId);
-  };
-
-  const handleInvitationClick = async (invitation: Invitation) => {
-    try {
-      const response = await fetch(`/api/invitations/${invitation.id}`, {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const invitationData = await response.json();
-        const transformedInvitation = {
-          id: invitationData.id,
-          title: invitationData.invitation_title,
-          slug: invitationData.slug || 'event',
-          hostName: invitationData.hostName || user?.name || 'Host',
-          createdAt: invitationData.created_at || new Date().toISOString(),
-          events: (invitationData.events || []).map((event: any) => ({
-            id: event.id,
-            name: event.name,
-            date: event.date,
-            time: event.start_time,
-            location: event.location || '',
-            capacity: event.capacity?.toString() || '',
-            guestsCount: 0
-          }))
-        };
-        
-        updateInvitation(transformedInvitation);
-        setCurrentInvitation(invitation.id);
-        router.push(`/host/${invitation.id}`);
-      }
-    } catch (error) {
-      console.error('Failed to fetch invitation details:', error);
-    }
   };
 
   useEffect(() => {
@@ -291,13 +257,10 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
               <motion.div
                 key={invite.id}
                 variants={itemVariants}
-                onClick={() => handleInvitationClick(invite)}
-                className="group bg-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 border"
-                style={{ 
-                  borderColor: 'var(--color-border)',
-                  transform: 'translateY(0)'
-                }}
+                className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border"
+                style={{ borderColor: 'var(--color-border)' }}
               >
+                <Link href={`/host/${invite.id}`} className="block">
                 {/* Card Cover */}
                 <div className="relative h-40 overflow-hidden"
                   style={{ background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%)' }}
@@ -329,10 +292,10 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
                   </div>
                   
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-body)' }}>
+                    {/* <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-body)' }}>
                       <Calendar className="w-4 h-4" style={{ color: 'var(--color-accent-primary)' }} />
                       <span>{invite.events && invite.events.length > 0 ? `${invite.events.length} event${invite.events.length > 1 ? 's' : ''}` : 'No events set'}</span>
-                    </div>
+                    </div> */}
                     {invite.events && invite.events[0]?.location && (
                       <div className="flex items-center gap-2 text-sm truncate" style={{ color: 'var(--color-text-muted)' }}>
                         <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,10 +313,24 @@ export default function InvitationList({ initialInvitations = [] }: InvitationLi
                       {new Date(invite.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                     <div className="flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--color-accent-primary)' }}>
-                      Manage
+                      Edit Invitation
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
+                </div>
+                </Link>
+
+                {/* Guest List link — separate from the card link */}
+                <div className="px-5 pb-4">
+                  <Link
+                    href={`/host/guest-list/${invite.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:opacity-80"
+                    style={{ backgroundColor: 'rgba(74,124,89,0.08)', color: 'var(--color-accent-primary)', border: '1.5px solid rgba(74,124,89,0.2)' }}
+                  >
+                    Guest List
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </motion.div>
             ))}

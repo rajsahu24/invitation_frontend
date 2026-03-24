@@ -67,25 +67,25 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
     <div className="min-h-screen p-6 pt-20" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="p-2 rounded-full transition-colors"
+              className="p-2 rounded-full transition-colors flex-shrink-0"
               style={{ backgroundColor: 'var(--color-bg-section-alt)', color: 'var(--color-text-heading)' }}
             >
-              <ArrowLeft className="w-6 h-6 " />
+              <ArrowLeft className="w-6 h-6" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>Choose Template</h1>
-              <p style={{ color: 'var(--color-text-body)' }}>Select a template for your invitation</p>
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-heading)' }}>Choose Template</h1>
+              <p className="text-sm" style={{ color: 'var(--color-text-body)' }}>Select a template for your invitation</p>
             </div>
           </div>
           
           {selectedTemplate && (
             <button
               onClick={handleSelect}
-              className="flex items-center gap-2 px-6 py-3 text-white rounded-xl font-medium transition-colors"
+              className="flex items-center justify-center gap-2 px-6 py-3 text-white rounded-xl font-medium transition-colors w-full sm:w-auto"
               style={{ backgroundColor: 'var(--color-accent-primary)' }}
             >
               <Check className="w-5 h-5" />
@@ -95,21 +95,28 @@ export default function TemplateSelection({ onSelect, onBack }: TemplateSelectio
         </div>
 
         {/* Category Filter */}
-        <div className="flex gap-2 mb-8">
-          {categories.map((cat,i) => (
-            <button
-              key={cat+i}
-              onClick={() => setCategory(cat)}
-              className="px-4 py-2 rounded-full font-medium transition-colors"
-              style={{ 
-                backgroundColor: category === cat ? 'var(--color-accent-primary)' : 'var(--color-card-bg)',
-                color: category === cat ? 'var(--color-text-white)' : 'var(--color-text-body)',
-                border: category === cat ? 'none' : '1px solid var(--color-border)'
-              }}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="relative mb-8">
+          <div className="flex gap-2 overflow-x-auto custom-scrollbar-h pb-2">
+            {categories.map((cat, i) => (
+              <button
+                key={cat + i}
+                onClick={() => setCategory(cat)}
+                className="px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap flex-shrink-0 text-sm"
+                style={{
+                  backgroundColor: category === cat ? 'var(--color-accent-primary)' : 'var(--color-card-bg)',
+                  color: category === cat ? 'var(--color-text-white)' : 'var(--color-text-body)',
+                  border: category === cat ? 'none' : '1px solid var(--color-border)'
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          {/* fade hint on right edge */}
+          <div
+            className="absolute right-0 top-0 bottom-2 w-10 pointer-events-none"
+            style={{ background: 'linear-gradient(to left, var(--color-bg-primary), transparent)' }}
+          />
         </div>
 
         {/* Template Grid */}
