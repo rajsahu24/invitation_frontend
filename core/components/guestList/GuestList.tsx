@@ -61,13 +61,13 @@ export default function GuestListPage({ guests, invitationId, invitationTitle }:
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+    <div className="min-h-screen pt-28 pb-16 px-4" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       <div className="container-landing">
 
         {/* Back + Header */}
         <div className="mb-8">
           <Link
-            href={`/host/${invitationId}`}
+            href={`/host`}
             className="inline-flex items-center gap-2 mb-6 text-sm transition-colors hover:opacity-70"
             style={{ color: 'var(--color-accent-primary)', fontFamily: 'var(--font-body)' }}
           >
